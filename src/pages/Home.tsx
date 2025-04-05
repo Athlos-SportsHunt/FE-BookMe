@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Ball, MapPin, Search, ArrowRight } from "lucide-react";
+import { FootballIcon } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { venues } from "@/data/mockData";
@@ -8,6 +9,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Home = () => {
+  // Custom icons for Home page
+  const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+
+  const SearchIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+
+  const ArrowRightIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
@@ -35,7 +58,7 @@ const Home = () => {
       <section className="hero-gradient py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
-            <Ball className="h-16 w-16 text-white" />
+            <FootballIcon className="h-16 w-16 text-white" />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             Find and Book Your Perfect Sports Venue
@@ -52,7 +75,7 @@ const Home = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-12 pr-4 py-6 text-lg rounded-full shadow-lg"
             />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
             <Button 
               type="submit" 
               className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-sporty-600 hover:bg-sporty-700 text-white px-6 py-2"
@@ -89,7 +112,7 @@ const Home = () => {
           <div className="flex flex-wrap items-center justify-between mb-10">
             <h2 className="text-3xl font-bold">Featured Venues</h2>
             <Link to="/venue-filter" className="text-sporty-600 hover:text-sporty-700 flex items-center">
-              View all venues <ArrowRight className="ml-2 h-4 w-4" />
+              View all venues <ArrowRightIcon className="ml-2 h-4 w-4" />
             </Link>
           </div>
 
@@ -109,7 +132,7 @@ const Home = () => {
                       <div>
                         <h3 className="text-xl font-bold">{venue.name}</h3>
                         <div className="flex items-center text-gray-500 mt-1">
-                          <MapPin className="h-4 w-4 mr-1" />
+                          <MapPinIcon className="h-4 w-4 mr-1" />
                           <span className="text-sm">{venue.address}</span>
                         </div>
                       </div>

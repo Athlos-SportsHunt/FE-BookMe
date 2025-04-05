@@ -2,16 +2,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { 
-  Search, 
-  MapPin, 
-  Filter,
-  SoccerBall,
-  Cricket,
-  Basketball,
-  Tennis,
-  Badminton,
-  X
-} from "lucide-react";
+  FootballIcon, 
+  CricketIcon, 
+  BasketballIcon, 
+  TennisIcon, 
+  BadmintonIcon 
+} from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,12 +26,40 @@ import {
   SheetTrigger 
 } from "@/components/ui/sheet";
 
+// Custom icon components for VenueFilter
+const SearchIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const FilterIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </svg>
+);
+
+const XIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
 const sportOptions = [
-  { value: "football", label: "Football", icon: SoccerBall },
-  { value: "cricket", label: "Cricket", icon: Cricket },
-  { value: "basketball", label: "Basketball", icon: Basketball },
-  { value: "tennis", label: "Tennis", icon: Tennis },
-  { value: "badminton", label: "Badminton", icon: Badminton },
+  { value: "football", label: "Football", icon: FootballIcon },
+  { value: "cricket", label: "Cricket", icon: CricketIcon },
+  { value: "basketball", label: "Basketball", icon: BasketballIcon },
+  { value: "tennis", label: "Tennis", icon: TennisIcon },
+  { value: "badminton", label: "Badminton", icon: BadmintonIcon },
 ];
 
 const VenueFilter = () => {
@@ -130,19 +154,19 @@ const VenueFilter = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-4 py-2 w-full"
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <Button 
             type="submit" 
             className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full h-8 w-8 p-0 bg-sporty-600 hover:bg-sporty-700"
           >
-            <Search className="h-4 w-4 text-white" />
+            <SearchIcon className="h-4 w-4 text-white" />
           </Button>
         </form>
         
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="flex items-center">
-              <Filter className="h-5 w-5 mr-2" />
+              <FilterIcon className="h-5 w-5 mr-2" />
               <span>Filters</span>
               {filterCount > 0 && (
                 <span className="ml-2 h-5 w-5 rounded-full bg-sporty-600 text-white text-xs flex items-center justify-center">
@@ -219,7 +243,7 @@ const VenueFilter = () => {
             <div key={sport} className="bg-sporty-50 text-sporty-700 px-3 py-1 rounded-full text-sm flex items-center">
               <span className="capitalize">{sport}</span>
               <button onClick={() => handleSportToggle(sport)} className="ml-1">
-                <X className="h-3 w-3" />
+                <XIcon className="h-3 w-3" />
               </button>
             </div>
           ))}
@@ -227,7 +251,7 @@ const VenueFilter = () => {
             <div className="bg-sporty-50 text-sporty-700 px-3 py-1 rounded-full text-sm flex items-center">
               <span>₹{priceRange[0]} - ₹{priceRange[1]}</span>
               <button onClick={() => setPriceRange([0, 3000])} className="ml-1">
-                <X className="h-3 w-3" />
+                <XIcon className="h-3 w-3" />
               </button>
             </div>
           )}
@@ -267,7 +291,7 @@ const VenueFilter = () => {
                 <CardContent className="p-5">
                   <h3 className="font-bold text-lg mb-2">{venue.name}</h3>
                   <div className="flex items-center text-gray-600 mb-3">
-                    <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                    <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
                     <span className="text-sm truncate">{venue.address}</span>
                   </div>
                   

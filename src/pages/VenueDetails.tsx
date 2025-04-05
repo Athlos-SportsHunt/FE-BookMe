@@ -2,17 +2,11 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Info, 
-  ExternalLink, 
-  ChevronLeft,
-  SoccerBall,
-  Cricket,
-  Basketball,
-  Tennis
-} from "lucide-react";
+  FootballIcon, 
+  CricketIcon, 
+  BasketballIcon, 
+  TennisIcon 
+} from "@/utils/sportIcons";
 import { venues } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,18 +14,64 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Venue, Turf } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+// Custom icon components for VenueDetails
+const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const CalendarIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const ClockIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const InfoIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+const ExternalLinkIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
+
+const ChevronLeftIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
 const getSportIcon = (sportType: string) => {
   switch (sportType) {
     case "football":
-      return <SoccerBall className="h-5 w-5" />;
+      return <FootballIcon className="h-5 w-5" />;
     case "cricket":
-      return <Cricket className="h-5 w-5" />;
+      return <CricketIcon className="h-5 w-5" />;
     case "basketball":
-      return <Basketball className="h-5 w-5" />;
+      return <BasketballIcon className="h-5 w-5" />;
     case "tennis":
-      return <Tennis className="h-5 w-5" />;
+      return <TennisIcon className="h-5 w-5" />;
     default:
-      return <SoccerBall className="h-5 w-5" />;
+      return <FootballIcon className="h-5 w-5" />;
   }
 };
 
@@ -98,14 +138,14 @@ const VenueDetails = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Back button */}
       <Link to="/" className="inline-flex items-center text-gray-600 hover:text-sporty-600 mb-6">
-        <ChevronLeft className="h-5 w-5 mr-1" /> Back to venues
+        <ChevronLeftIcon className="h-5 w-5 mr-1" /> Back to venues
       </Link>
 
       {/* Venue Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">{venue.name}</h1>
         <div className="flex items-center text-gray-600 mb-4">
-          <MapPin className="h-5 w-5 mr-2" />
+          <MapPinIcon className="h-5 w-5 mr-2" />
           <span>{venue.address}</span>
           {venue.googleMapsLink && (
             <a
@@ -114,7 +154,7 @@ const VenueDetails = () => {
               rel="noopener noreferrer"
               className="ml-2 text-sporty-600 hover:text-sporty-700 inline-flex items-center"
             >
-              View on map <ExternalLink className="h-4 w-4 ml-1" />
+              View on map <ExternalLinkIcon className="h-4 w-4 ml-1" />
             </a>
           )}
         </div>
@@ -159,7 +199,7 @@ const VenueDetails = () => {
             <TabsContent value="about">
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h2 className="text-xl font-bold mb-4 flex items-center">
-                  <Info className="h-5 w-5 mr-2 text-sporty-600" /> About this venue
+                  <InfoIcon className="h-5 w-5 mr-2 text-sporty-600" /> About this venue
                 </h2>
                 <p className="text-gray-700 mb-6 leading-relaxed">
                   {venue.description ||
@@ -241,7 +281,7 @@ const VenueDetails = () => {
                           <div className="mt-4 flex justify-end">
                             <Link to={`/venue/${venue.id}/turf/${turf.id}`}>
                               <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
-                                <Calendar className="mr-2 h-4 w-4" /> Book Now
+                                <CalendarIcon className="mr-2 h-4 w-4" /> Book Now
                               </Button>
                             </Link>
                           </div>
@@ -286,11 +326,11 @@ const VenueDetails = () => {
             </div>
             <div className="mt-6 space-y-4">
               <div className="flex items-center text-sm text-gray-600">
-                <Clock className="h-4 w-4 mr-2 text-sporty-600" />
+                <ClockIcon className="h-4 w-4 mr-2 text-sporty-600" />
                 <span>Available for hourly booking</span>
               </div>
               <div className="flex items-center text-sm text-gray-600">
-                <Calendar className="h-4 w-4 mr-2 text-sporty-600" />
+                <CalendarIcon className="h-4 w-4 mr-2 text-sporty-600" />
                 <span>Book up to 30 days in advance</span>
               </div>
             </div>

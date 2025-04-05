@@ -1,6 +1,6 @@
 
 import { Outlet } from "react-router-dom";
-import { Football } from "lucide-react";
+import { FootballIcon } from "@/utils/sportIcons";
 
 const AuthLayout = () => {
   return (
@@ -8,7 +8,7 @@ const AuthLayout = () => {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center p-2 bg-white rounded-full shadow-lg mb-4">
-            <Football className="h-12 w-12 text-sporty-600" />
+            <FootballIcon className="h-12 w-12 text-sporty-600" />
           </div>
           <h1 className="text-3xl font-bold text-white">Sporty Turf Hub</h1>
           <p className="text-sporty-100 mt-2">Book your perfect sports venue</p>

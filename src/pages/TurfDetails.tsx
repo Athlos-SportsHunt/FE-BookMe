@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -12,10 +11,11 @@ import { Turf, Venue, Booking } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { format, addHours, addMinutes, isBefore, isAfter, parseISO } from "date-fns";
+import { format, addHours, addMinutes, isBefore, isAfter, parseISO, set } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 
-// Custom icon components for TurfDetails
 const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -87,17 +87,18 @@ const TurfDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [startTimeSlots, setStartTimeSlots] = useState<{ time: Date; available: boolean }[]>([]);
+  const [timeSlots, setTimeSlots] = useState<{ time: Date; available: boolean }[]>([]);
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
   const [durationMinutes, setDurationMinutes] = useState(60); // Default 60 minutes
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [timeSliderValue, setTimeSliderValue] = useState([0]); // Start at minimum time
+  const [sliderMin, setSliderMin] = useState(0);
+  const [sliderMax, setSliderMax] = useState(32); // (16 hours * 2 slots per hour)
 
-  // Fetch turf and venue data
   useEffect(() => {
-    // Simulating API fetch with setTimeout
     const timer = setTimeout(() => {
       try {
         if (!venueId || !turfId) {
@@ -130,7 +131,6 @@ const TurfDetails = () => {
     return () => clearTimeout(timer);
   }, [venueId, turfId]);
 
-  // Generate available start time slots for selected date
   useEffect(() => {
     if (!turf) return;
 
@@ -139,26 +139,37 @@ const TurfDetails = () => {
     const startHour = 6; // 6 AM
     const endHour = 22; // 10 PM
 
-    // Check if selected date is today
     const isToday = selectedDate.toDateString() === now.toDateString();
     
-    // Start from current hour if today, otherwise from opening hour
     const currentHour = now.getHours();
-    const startFromHour = isToday ? Math.max(currentHour + 1, startHour) : startHour;
-
-    for (let hour = startFromHour; hour < endHour; hour++) {
+    const startFromHour = isToday ? Math.max(currentHour, startHour) : startHour;
+    
+    let sliderStartIndex = 0;
+    let sliderEndIndex = (endHour - startHour) * 2; // 2 slots per hour (30 min intervals)
+    let slotIndex = 0;
+    
+    for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const slotTime = new Date(selectedDate);
         slotTime.setHours(hour, minute, 0, 0);
         
-        // Only add slot if it's at least 30 minutes in the future
-        if (isToday && slotTime.getTime() - now.getTime() < 30 * 60 * 1000) {
-          continue;
+        let isAvailable = true;
+        
+        if (isToday) {
+          const minBookingTime = new Date(now);
+          minBookingTime.setMinutes(now.getMinutes() + 30);
+          
+          if (slotTime < minBookingTime) {
+            isAvailable = false;
+            
+            if (hour * 2 + (minute === 30 ? 1 : 0) === slotIndex) {
+              sliderStartIndex++;
+            }
+          }
         }
-
-        // Check if slot overlaps with any existing booking
+        
         const potentialEndTime = addMinutes(slotTime, durationMinutes);
-        const isAvailable = !turf.bookings.some((booking: Booking) => {
+        const slotOverlapsBooking = turf.bookings.some((booking: Booking) => {
           const bookingStart = new Date(booking.startTime);
           const bookingEnd = new Date(booking.endTime);
           
@@ -169,21 +180,61 @@ const TurfDetails = () => {
             slotTime.getTime() === bookingStart.getTime()
           );
         });
-
+        
+        if (slotOverlapsBooking) {
+          isAvailable = false;
+        }
+        
         slots.push({
           time: slotTime,
           available: isAvailable,
         });
+        
+        slotIndex++;
       }
     }
-
-    setStartTimeSlots(slots);
-    setSelectedStartTime(null); // Reset selection when date changes
+    
+    setTimeSlots(slots);
+    setSliderMin(sliderStartIndex);
+    setSliderMax(sliderEndIndex);
+    setTimeSliderValue([sliderStartIndex]);
+    
+    setSelectedStartTime(null);
   }, [turf, selectedDate, durationMinutes]);
-
-  const handleStartTimeSelect = (slot: { time: Date; available: boolean }) => {
-    if (!slot.available) return;
-    setSelectedStartTime(slot.time);
+  
+  useEffect(() => {
+    if (timeSlots.length === 0 || timeSliderValue[0] < sliderMin) return;
+    
+    const selectedSlotIndex = timeSliderValue[0];
+    const adjustedIndex = selectedSlotIndex - sliderMin;
+    
+    if (adjustedIndex >= 0 && adjustedIndex < timeSlots.length) {
+      const selectedSlot = timeSlots[adjustedIndex];
+      
+      if (selectedSlot && selectedSlot.available) {
+        setSelectedStartTime(selectedSlot.time);
+      } else {
+        const nextAvailableIndex = timeSlots.findIndex(
+          (slot, index) => index >= adjustedIndex && slot.available
+        );
+        
+        if (nextAvailableIndex !== -1) {
+          setSelectedStartTime(timeSlots[nextAvailableIndex].time);
+          setTimeSliderValue([nextAvailableIndex + sliderMin]);
+        } else {
+          setSelectedStartTime(null);
+        }
+      }
+    }
+  }, [timeSliderValue, timeSlots, sliderMin]);
+  
+  const formatSliderTime = (value: number) => {
+    if (timeSlots.length === 0) return "";
+    
+    const adjustedIndex = value - sliderMin;
+    if (adjustedIndex < 0 || adjustedIndex >= timeSlots.length) return "";
+    
+    return format(timeSlots[adjustedIndex].time, "h:mm a");
   };
 
   const increaseDuration = () => {
@@ -216,7 +267,6 @@ const TurfDetails = () => {
   const handleConfirmBooking = () => {
     if (!turf || !selectedStartTime) return;
     
-    // In a real app, this would make an API call to create a booking
     setTimeout(() => {
       setBookingConfirmed(true);
       toast({
@@ -261,12 +311,10 @@ const TurfDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Back button */}
       <Link to={`/venue/${venueId}`} className="inline-flex items-center text-gray-600 hover:text-sporty-600 mb-6">
         <ChevronLeftIcon className="h-5 w-5 mr-1" /> Back to venue
       </Link>
 
-      {/* Turf Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">{turf.name}</h1>
         <div className="flex items-center text-gray-600 mb-1">
@@ -282,7 +330,6 @@ const TurfDetails = () => {
         </div>
       </div>
 
-      {/* Image Gallery */}
       <div className="mb-10">
         <div className="relative h-96 overflow-hidden rounded-lg mb-4">
           <img
@@ -310,7 +357,6 @@ const TurfDetails = () => {
         </div>
       </div>
 
-      {/* Turf Details and Booking */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <Card>
@@ -345,7 +391,6 @@ const TurfDetails = () => {
           </Card>
         </div>
 
-        {/* Booking Sidebar */}
         <div>
           <div className="bg-white rounded-lg shadow-sm sticky top-24">
             <div className="p-6 border-b">
@@ -365,28 +410,36 @@ const TurfDetails = () => {
             </div>
             
             <div className="p-6 border-b">
-              <h3 className="font-semibold mb-3">Starting Time</h3>
-              {startTimeSlots.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2">
-                  {startTimeSlots.map((slot, index) => (
-                    <div
-                      key={index}
-                      className={`p-2 rounded text-center cursor-pointer border ${
-                        selectedStartTime &&
-                        slot.time.getTime() === selectedStartTime.getTime()
-                          ? "bg-sporty-600 text-white"
-                          : slot.available
-                          ? "bg-white hover:bg-sporty-50 text-gray-800"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      }`}
-                      onClick={() => slot.available && handleStartTimeSelect(slot)}
-                    >
-                      {format(slot.time, "h:mm a")}
-                    </div>
-                  ))}
+              <h3 className="font-semibold mb-4">Select Starting Time</h3>
+              <div className="mb-6">
+                <Slider
+                  value={timeSliderValue}
+                  min={sliderMin}
+                  max={sliderMax}
+                  step={1}
+                  onValueChange={setTimeSliderValue}
+                  disabled={timeSlots.length === 0}
+                />
+                
+                <div className="flex justify-between items-center mt-2">
+                  <div className="text-sm text-gray-500">
+                    {timeSlots.length > 0 && sliderMin < timeSlots.length
+                      ? format(timeSlots[0].time, "h:mm a")
+                      : "6:00 AM"}
+                  </div>
+                  <div className="font-medium text-center px-3 py-1 bg-sporty-50 rounded text-sporty-700">
+                    {selectedStartTime ? format(selectedStartTime, "h:mm a") : "Select time"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {timeSlots.length > 0 && sliderMax > sliderMin
+                      ? format(timeSlots[timeSlots.length - 1].time, "h:mm a")
+                      : "10:00 PM"}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No available slots for this date</p>
+              </div>
+              
+              {timeSlots.length === 0 && (
+                <p className="text-gray-500 text-center py-2">No available slots for this date</p>
               )}
             </div>
             
@@ -448,7 +501,6 @@ const TurfDetails = () => {
         </div>
       </div>
 
-      {/* Booking Dialog */}
       <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

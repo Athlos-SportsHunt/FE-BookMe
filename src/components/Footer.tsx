@@ -1,5 +1,4 @@
-
-import { SoccerBall, Instagram, Twitter, Facebook, Mail } from "lucide-react";
+import { Ball, Instagram, Twitter, Facebook, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -10,7 +9,7 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <SoccerBall className="h-8 w-8 text-sporty-500" />
+              <Ball className="h-8 w-8 text-sporty-500" />
               <span className="text-xl font-bold">Sporty Turf Hub</span>
             </div>
             <p className="text-gray-400 mb-4">

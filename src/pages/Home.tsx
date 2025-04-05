@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { SoccerBall, MapPin, Search, ArrowRight } from "lucide-react";
+import { Ball, MapPin, Search, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { venues } from "@/data/mockData";
@@ -36,7 +35,7 @@ const Home = () => {
       <section className="hero-gradient py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
-            <SoccerBall className="h-16 w-16 text-white" />
+            <Ball className="h-16 w-16 text-white" />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             Find and Book Your Perfect Sports Venue

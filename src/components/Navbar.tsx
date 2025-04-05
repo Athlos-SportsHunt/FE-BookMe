@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, SoccerBall, Search, User } from "lucide-react";
+import { Menu, X, Ball, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -23,7 +23,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <SoccerBall className="h-8 w-8 text-sporty-600" />
+            <Ball className="h-8 w-8 text-sporty-600" />
             <span className="text-xl font-bold text-sporty-700">Sporty Turf Hub</span>
           </Link>
 

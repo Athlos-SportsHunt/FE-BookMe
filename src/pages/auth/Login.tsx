@@ -292,7 +292,11 @@ const Login = () => {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                document.querySelector('[data-value="login"]')?.click();
+                const loginTab = document.querySelector('[data-value="login"]');
+                if (loginTab) {
+                  // Use the correct way to click the element
+                  (loginTab as HTMLElement).click();
+                }
               }}
               className="text-sporty-600 hover:text-sporty-700"
             >

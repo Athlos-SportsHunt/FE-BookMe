@@ -1,14 +1,17 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { FootballIcon } from "@/utils/sportIcons";
+import { Link, useNavigate } from "react-router-dom";
+import { FootballIcon, CricketIcon, BasketballIcon, TennisIcon, BadmintonIcon, VolleyballIcon } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { venues } from "@/data/mockData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SportType } from "@/types";
 
 const Home = () => {
+  const navigate = useNavigate();
+  
   // Custom icons for Home page
   const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -36,20 +39,27 @@ const Home = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/venue-filter?query=${encodeURIComponent(searchQuery)}`;
+      navigate(`/venue-filter?query=${encodeURIComponent(searchQuery)}`);
     }
+  };
+
+  // Navigate to filtered venues by sport
+  const handleSportClick = (sport: string) => {
+    // Convert sport name to match the sportType values in the data
+    const sportType = sport.toLowerCase() as SportType;
+    navigate(`/venue-filter?sport=${encodeURIComponent(sportType)}`);
   };
 
   // Featured venues (just show 3 for the homepage)
   const featuredVenues = venues.slice(0, 3);
 
   const sportCategories = [
-    { name: "Football", icon: "⚽", color: "bg-blue-500" },
-    { name: "Cricket", icon: "🏏", color: "bg-green-500" },
-    { name: "Basketball", icon: "🏀", color: "bg-orange-500" },
-    { name: "Tennis", icon: "🎾", color: "bg-yellow-500" },
-    { name: "Badminton", icon: "🏸", color: "bg-purple-500" },
-    { name: "Volleyball", icon: "🏐", color: "bg-red-500" },
+    { name: "Football", icon: FootballIcon, color: "bg-blue-500" },
+    { name: "Cricket", icon: CricketIcon, color: "bg-green-500" },
+    { name: "Basketball", icon: BasketballIcon, color: "bg-orange-500" },
+    { name: "Tennis", icon: TennisIcon, color: "bg-yellow-500" },
+    { name: "Badminton", icon: BadmintonIcon, color: "bg-purple-500" },
+    { name: "Volleyball", icon: VolleyballIcon, color: "bg-red-500" },
   ];
 
   return (
@@ -95,9 +105,10 @@ const Home = () => {
               <div 
                 key={index} 
                 className="flex flex-col items-center p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleSportClick(sport.name)}
               >
-                <div className={`${sport.color} h-16 w-16 rounded-full flex items-center justify-center text-2xl mb-4`}>
-                  {sport.icon}
+                <div className={`${sport.color} h-16 w-16 rounded-full flex items-center justify-center text-white mb-4`}>
+                  <sport.icon className="h-8 w-8" />
                 </div>
                 <span className="font-medium">{sport.name}</span>
               </div>

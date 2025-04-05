@@ -1,11 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
-  FootballIcon, 
-  CricketIcon, 
-  BasketballIcon, 
-  TennisIcon 
+  getSportIcon
 } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -15,7 +12,7 @@ import { Turf, Venue, Booking } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { format, addHours, isBefore, isAfter, parseISO } from "date-fns";
+import { format, addHours, addMinutes, isBefore, isAfter, parseISO } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
 
 // Custom icon components for TurfDetails
@@ -48,6 +45,19 @@ const ChevronLeftIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
   </svg>
 );
 
+const PlusIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+const MinusIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
 const CreditCardIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
@@ -69,30 +79,17 @@ const InfoIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
   </svg>
 );
 
-const getSportIcon = (sportType: string) => {
-  switch (sportType) {
-    case "football":
-      return <FootballIcon className="h-5 w-5" />;
-    case "cricket":
-      return <CricketIcon className="h-5 w-5" />;
-    case "basketball":
-      return <BasketballIcon className="h-5 w-5" />;
-    case "tennis":
-      return <TennisIcon className="h-5 w-5" />;
-    default:
-      return <FootballIcon className="h-5 w-5" />;
-  }
-};
-
 const TurfDetails = () => {
   const { venueId, turfId } = useParams<{ venueId: string; turfId: string }>();
+  const navigate = useNavigate();
   const [turf, setTurf] = useState<Turf | null>(null);
   const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [availableSlots, setAvailableSlots] = useState<{ start: Date; end: Date; available: boolean }[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
+  const [startTimeSlots, setStartTimeSlots] = useState<{ time: Date; available: boolean }[]>([]);
+  const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
+  const [durationMinutes, setDurationMinutes] = useState(60); // Default 60 minutes
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
@@ -133,7 +130,7 @@ const TurfDetails = () => {
     return () => clearTimeout(timer);
   }, [venueId, turfId]);
 
-  // Generate available slots for selected date
+  // Generate available start time slots for selected date
   useEffect(() => {
     if (!turf) return;
 
@@ -150,55 +147,81 @@ const TurfDetails = () => {
     const startFromHour = isToday ? Math.max(currentHour + 1, startHour) : startHour;
 
     for (let hour = startFromHour; hour < endHour; hour++) {
-      const slotStartTime = new Date(selectedDate);
-      slotStartTime.setHours(hour, 0, 0, 0);
-      
-      const slotEndTime = new Date(selectedDate);
-      slotEndTime.setHours(hour + 1, 0, 0, 0);
-
-      // Check if slot overlaps with any existing booking
-      const isAvailable = !turf.bookings.some((booking: Booking) => {
-        const bookingStart = new Date(booking.startTime);
-        const bookingEnd = new Date(booking.endTime);
+      for (let minute = 0; minute < 60; minute += 30) {
+        const slotTime = new Date(selectedDate);
+        slotTime.setHours(hour, minute, 0, 0);
         
-        return (
-          (isAfter(slotStartTime, bookingStart) && isBefore(slotStartTime, bookingEnd)) ||
-          (isAfter(slotEndTime, bookingStart) && isBefore(slotEndTime, bookingEnd)) ||
-          (isBefore(slotStartTime, bookingStart) && isAfter(slotEndTime, bookingEnd)) ||
-          slotStartTime.getTime() === bookingStart.getTime() ||
-          slotEndTime.getTime() === bookingEnd.getTime()
-        );
-      });
+        // Only add slot if it's at least 30 minutes in the future
+        if (isToday && slotTime.getTime() - now.getTime() < 30 * 60 * 1000) {
+          continue;
+        }
 
-      slots.push({
-        start: slotStartTime,
-        end: slotEndTime,
-        available: isAvailable,
-      });
+        // Check if slot overlaps with any existing booking
+        const potentialEndTime = addMinutes(slotTime, durationMinutes);
+        const isAvailable = !turf.bookings.some((booking: Booking) => {
+          const bookingStart = new Date(booking.startTime);
+          const bookingEnd = new Date(booking.endTime);
+          
+          return (
+            (isAfter(slotTime, bookingStart) && isBefore(slotTime, bookingEnd)) ||
+            (isAfter(potentialEndTime, bookingStart) && isBefore(potentialEndTime, bookingEnd)) ||
+            (isBefore(slotTime, bookingStart) && isAfter(potentialEndTime, bookingEnd)) ||
+            slotTime.getTime() === bookingStart.getTime()
+          );
+        });
+
+        slots.push({
+          time: slotTime,
+          available: isAvailable,
+        });
+      }
     }
 
-    setAvailableSlots(slots);
-  }, [turf, selectedDate]);
+    setStartTimeSlots(slots);
+    setSelectedStartTime(null); // Reset selection when date changes
+  }, [turf, selectedDate, durationMinutes]);
 
-  const handleSlotSelect = (slot: { start: Date; end: Date; available: boolean }) => {
+  const handleStartTimeSelect = (slot: { time: Date; available: boolean }) => {
     if (!slot.available) return;
-    setSelectedSlot({ start: slot.start, end: slot.end });
+    setSelectedStartTime(slot.time);
+  };
+
+  const increaseDuration = () => {
+    if (durationMinutes < 180) { // Max 3 hours
+      setDurationMinutes(durationMinutes + 30);
+    }
+  };
+
+  const decreaseDuration = () => {
+    if (durationMinutes > 30) { // Min 30 minutes
+      setDurationMinutes(durationMinutes - 30);
+    }
+  };
+
+  const calculateEndTime = () => {
+    if (!selectedStartTime) return null;
+    return addMinutes(selectedStartTime, durationMinutes);
+  };
+
+  const calculateTotalPrice = () => {
+    if (!turf || !selectedStartTime) return 0;
+    return (turf.pricePerHour / 60) * durationMinutes;
   };
 
   const handleBookNow = () => {
-    if (!selectedSlot) return;
+    if (!selectedStartTime) return;
     setBookingDialogOpen(true);
   };
 
   const handleConfirmBooking = () => {
-    if (!turf || !selectedSlot) return;
+    if (!turf || !selectedStartTime) return;
     
     // In a real app, this would make an API call to create a booking
     setTimeout(() => {
       setBookingConfirmed(true);
       toast({
         title: "Booking Confirmed!",
-        description: `Your booking for ${format(selectedSlot.start, "h:mm a")} - ${format(selectedSlot.end, "h:mm a")} on ${format(selectedDate, "MMMM d, yyyy")} has been confirmed.`,
+        description: `Your booking for ${format(selectedStartTime, "h:mm a")} - ${format(calculateEndTime() || new Date(), "h:mm a")} on ${format(selectedDate, "MMMM d, yyyy")} has been confirmed.`,
         variant: "default",
       });
     }, 1500);
@@ -232,6 +255,10 @@ const TurfDetails = () => {
     );
   }
 
+  const endTime = calculateEndTime();
+  const totalPrice = calculateTotalPrice();
+  const SportIcon = getSportIcon(turf.sportType);
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Back button */}
@@ -248,7 +275,7 @@ const TurfDetails = () => {
         </div>
         <div className="flex items-center text-gray-600">
           <div className="flex items-center mr-4">
-            {getSportIcon(turf.sportType)}
+            <SportIcon className="h-5 w-5 mr-1" />
             <span className="ml-1 capitalize">{turf.sportType}</span>
           </div>
           <div className="text-sporty-600 font-bold">₹{turf.pricePerHour}/hour</div>
@@ -338,28 +365,61 @@ const TurfDetails = () => {
             </div>
             
             <div className="p-6 border-b">
-              <h3 className="font-semibold mb-3">Available Time Slots</h3>
-              {availableSlots.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {availableSlots.map((slot, index) => (
+              <h3 className="font-semibold mb-3">Starting Time</h3>
+              {startTimeSlots.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {startTimeSlots.map((slot, index) => (
                     <div
                       key={index}
                       className={`p-2 rounded text-center cursor-pointer border ${
-                        selectedSlot &&
-                        slot.start.getTime() === selectedSlot.start.getTime()
+                        selectedStartTime &&
+                        slot.time.getTime() === selectedStartTime.getTime()
                           ? "bg-sporty-600 text-white"
                           : slot.available
                           ? "bg-white hover:bg-sporty-50 text-gray-800"
                           : "bg-gray-100 text-gray-400 cursor-not-allowed"
                       }`}
-                      onClick={() => slot.available && handleSlotSelect(slot)}
+                      onClick={() => slot.available && handleStartTimeSelect(slot)}
                     >
-                      {format(slot.start, "h:mm a")} - {format(slot.end, "h:mm a")}
+                      {format(slot.time, "h:mm a")}
                     </div>
                   ))}
                 </div>
               ) : (
                 <p className="text-gray-500 text-center py-4">No available slots for this date</p>
+              )}
+            </div>
+            
+            <div className="p-6 border-b">
+              <h3 className="font-semibold mb-3">Duration</h3>
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={decreaseDuration}
+                  disabled={durationMinutes <= 30}
+                  className="h-8 w-8"
+                >
+                  <MinusIcon className="h-4 w-4" />
+                </Button>
+                <div className="text-center font-medium">
+                  {durationMinutes} minutes
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={increaseDuration}
+                  disabled={durationMinutes >= 180}
+                  className="h-8 w-8"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {selectedStartTime && endTime && (
+                <div className="mt-3 text-center text-sm bg-sporty-50 p-2 rounded">
+                  {format(selectedStartTime, "h:mm a")} - {format(endTime, "h:mm a")}
+                </div>
               )}
             </div>
             
@@ -372,12 +432,12 @@ const TurfDetails = () => {
                 <div className="flex justify-between">
                   <span className="font-medium">Total</span>
                   <span className="font-bold text-sporty-600">
-                    ₹{selectedSlot ? turf.pricePerHour : 0}
+                    ₹{totalPrice.toFixed(0)}
                   </span>
                 </div>
                 <Button
                   className="w-full bg-sporty-600 hover:bg-sporty-700 text-white"
-                  disabled={!selectedSlot}
+                  disabled={!selectedStartTime}
                   onClick={handleBookNow}
                 >
                   Book Now
@@ -408,25 +468,23 @@ const TurfDetails = () => {
                   <div className="font-medium">{turf.name}</div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="bg-gray-50 p-4 rounded">
-                    <div className="text-sm text-gray-500 mb-1">Date</div>
+                    <div className="text-sm text-gray-500 mb-1">Date & Time</div>
                     <div className="font-medium">
                       {selectedDate && format(selectedDate, "MMMM d, yyyy")}
                     </div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded">
-                    <div className="text-sm text-gray-500 mb-1">Time</div>
                     <div className="font-medium">
-                      {selectedSlot &&
-                        `${format(selectedSlot.start, "h:mm a")} - ${format(selectedSlot.end, "h:mm a")}`}
+                      {selectedStartTime && endTime &&
+                        `${format(selectedStartTime, "h:mm a")} - ${format(endTime, "h:mm a")}`}
+                      <div className="text-sm text-gray-500">({durationMinutes} minutes)</div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded">
                   <div className="text-sm text-gray-500 mb-1">Amount</div>
-                  <div className="font-bold text-sporty-600">₹{turf.pricePerHour}</div>
+                  <div className="font-bold text-sporty-600">₹{totalPrice.toFixed(0)}</div>
                 </div>
 
                 <div>
@@ -477,7 +535,7 @@ const TurfDetails = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-1">Payment Successful</h3>
                 <p className="text-gray-600 text-center">
-                  Your booking for {format(selectedSlot?.start || new Date(), "h:mm a")} - {format(selectedSlot?.end || addHours(new Date(), 1), "h:mm a")} on {format(selectedDate, "MMMM d, yyyy")} has been confirmed.
+                  Your booking for {format(selectedStartTime, "h:mm a")} - {format(endTime || addHours(new Date(), 1), "h:mm a")} on {format(selectedDate, "MMMM d, yyyy")} has been confirmed.
                 </p>
               </div>
 

@@ -118,13 +118,13 @@ export const ActivityIcon: React.FC<SportIconProps> = ({ className = "h-6 w-6", 
 
 // Sport icon mapping
 export const sportIconMap: Record<string, React.FC<SportIconProps>> = {
-  "Football": FootballIcon,
-  "Cricket": CricketIcon,
-  "Basketball": BasketballIcon,
-  "Tennis": TennisIcon,
-  "Badminton": BadmintonIcon,
-  "Volleyball": VolleyballIcon,
-  "Swimming": SwimmingIcon,
+  "football": FootballIcon,
+  "cricket": CricketIcon,
+  "basketball": BasketballIcon,
+  "tennis": TennisIcon,
+  "badminton": BadmintonIcon,
+  "volleyball": VolleyballIcon,
+  "swimming": SwimmingIcon,
   "default": FootballIcon
 };
 

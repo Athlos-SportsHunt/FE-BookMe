@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { 
+  getSportIcon,
   FootballIcon, 
   CricketIcon, 
   BasketballIcon, 
@@ -65,15 +66,36 @@ const sportOptions = [
 const VenueFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("query") || "";
+  const initialSport = searchParams.get("sport") || "";
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Filter states
-  const [selectedSports, setSelectedSports] = useState<SportType[]>([]);
+  const [selectedSports, setSelectedSports] = useState<SportType[]>(
+    initialSport ? [initialSport as SportType] : []
+  );
   const [priceRange, setPriceRange] = useState([0, 3000]);
   const [filterCount, setFilterCount] = useState(0);
+
+  // Update URL params when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (searchQuery) {
+      params.set("query", searchQuery);
+    }
+    
+    if (selectedSports.length === 1) {
+      params.set("sport", selectedSports[0]);
+    } else if (selectedSports.length > 1) {
+      // For multiple sports, we'll use comma-separated values
+      params.set("sports", selectedSports.join(","));
+    }
+    
+    setSearchParams(params, { replace: true });
+  }, [searchQuery, selectedSports, setSearchParams]);
 
   // Effect to filter venues based on search and filters
   useEffect(() => {
@@ -124,7 +146,7 @@ const VenueFilter = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchParams({ query: searchQuery });
+    // Search query is already being tracked by the effect
   };
 
   const handleSportToggle = (sport: SportType) => {
@@ -138,6 +160,13 @@ const VenueFilter = () => {
   const clearFilters = () => {
     setSelectedSports([]);
     setPriceRange([0, 3000]);
+    
+    // Clear URL params except for search query
+    const params = new URLSearchParams();
+    if (searchQuery) {
+      params.set("query", searchQuery);
+    }
+    setSearchParams(params, { replace: true });
   };
 
   return (
@@ -296,14 +325,18 @@ const VenueFilter = () => {
                   </div>
                   
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {Array.from(new Set(venue.turfs.map(turf => turf.sportType))).map((sport, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs capitalize"
-                      >
-                        {sport}
-                      </span>
-                    ))}
+                    {Array.from(new Set(venue.turfs.map(turf => turf.sportType))).map((sport, index) => {
+                      const SportIconComponent = getSportIcon(sport);
+                      return (
+                        <span 
+                          key={index} 
+                          className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs flex items-center"
+                        >
+                          <SportIconComponent className="h-3 w-3 mr-1" />
+                          <span className="capitalize">{sport}</span>
+                        </span>
+                      );
+                    })}
                   </div>
                   
                   <div className="flex justify-between items-center">

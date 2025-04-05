@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
-  SoccerBall, 
   ChevronLeft, 
   Edit, 
   Trash, 
@@ -13,6 +11,7 @@ import {
   DollarSign,
   Settings
 } from "lucide-react";
+import { FootballIcon } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -52,18 +51,15 @@ const TurfManagement = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    // Simulate API call to fetch turf and venue data
     const timer = setTimeout(() => {
       const foundTurf = turfs.find(t => t.id === turfId);
       
       if (foundTurf) {
         setTurf(foundTurf);
         
-        // Get venue for this turf
         const foundVenue = venues.find(v => v.id === foundTurf.venueId);
         setVenue(foundVenue || null);
         
-        // Get bookings for this turf
         const foundBookings = bookings.filter(b => b.turfId === turfId);
         setTurfBookings(foundBookings);
       }
@@ -75,7 +71,6 @@ const TurfManagement = () => {
   }, [turfId, venueId]);
 
   const handleDeleteTurf = () => {
-    // In a real app, this would make an API call to delete the turf
     toast({
       title: "Turf Deleted",
       description: "The turf has been deleted successfully.",
@@ -83,7 +78,6 @@ const TurfManagement = () => {
     navigate(`/host/venue/${venueId}`);
   };
 
-  // Group bookings by date
   const groupBookingsByDate = (bookings: Booking[]) => {
     const grouped = bookings.reduce((acc, booking) => {
       const date = format(parseISO(booking.startTime), "yyyy-MM-dd");
@@ -94,7 +88,6 @@ const TurfManagement = () => {
       return acc;
     }, {} as Record<string, Booking[]>);
     
-    // Sort by date
     return Object.keys(grouped)
       .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
       .map(date => ({
@@ -267,7 +260,7 @@ const TurfManagement = () => {
                     <div>
                       <h3 className="text-lg font-medium mb-2">Sport Type</h3>
                       <div className="flex items-center">
-                        <SoccerBall className="h-5 w-5 text-gray-500 mr-2" />
+                        <FootballIcon className="h-5 w-5 text-gray-500 mr-2" />
                         <span className="capitalize">{turf.sportType}</span>
                       </div>
                     </div>

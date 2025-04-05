@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
-  SoccerBall, 
   Upload, 
   Info, 
   CheckCircle, 
@@ -11,6 +10,7 @@ import {
   X,
   Check
 } from "lucide-react";
+import { FootballIcon } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -238,7 +238,7 @@ const CreateTurf = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <SoccerBall className="mr-2 h-5 w-5" /> Basic Information
+                  <FootballIcon className="mr-2 h-5 w-5" /> Basic Information
                 </CardTitle>
                 <CardDescription>
                   Provide the basic details about your turf

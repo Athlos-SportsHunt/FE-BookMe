@@ -77,6 +77,13 @@ const Login = () => {
     }, 1500);
   };
 
+  const switchToLoginTab = () => {
+    const loginTab = document.querySelector('[data-value="login"]');
+    if (loginTab && loginTab instanceof HTMLElement) {
+      loginTab.click();
+    }
+  };
+
   return (
     <Tabs defaultValue="login">
       <TabsList className="grid grid-cols-2 mb-6">
@@ -292,11 +299,7 @@ const Login = () => {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                const loginTab = document.querySelector('[data-value="login"]');
-                if (loginTab) {
-                  // Use the correct way to click the element
-                  (loginTab as HTMLElement).click();
-                }
+                switchToLoginTab();
               }}
               className="text-sporty-600 hover:text-sporty-700"
             >

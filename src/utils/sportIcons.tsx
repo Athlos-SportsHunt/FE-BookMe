@@ -1,17 +1,17 @@
 
-import { Ball, Cricket as CricketGame, Dumbbell, Waves } from "lucide-react";
+import { Football, ActivitySquare, Dumbbell, Waves, Badminton as BadmintonIcon } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 // Sport icon mapping
 export const sportIconMap: Record<string, LucideIcon> = {
-  "Football": Ball,
-  "Cricket": CricketGame,
-  "Basketball": Ball, // Using Ball as a substitute for Basketball
-  "Tennis": Ball, // Using Ball as a substitute for Tennis
-  "Badminton": Dumbbell, // Using Dumbbell as a substitute for Badminton
-  "Volleyball": Ball, // Using Ball as a substitute for Volleyball
+  "Football": Football,
+  "Cricket": ActivitySquare,  // Using ActivitySquare as a substitute for Cricket
+  "Basketball": Football,     // Using Football as a substitute for Basketball
+  "Tennis": ActivitySquare,   // Using ActivitySquare as a substitute for Tennis
+  "Badminton": BadmintonIcon, // Using Badminton icon
+  "Volleyball": Football,     // Using Football as a substitute for Volleyball
   "Swimming": Waves,
-  "default": Ball
+  "default": Football
 };
 
 // Function to get the icon component for a sport

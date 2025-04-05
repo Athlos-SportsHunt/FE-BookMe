@@ -10,7 +10,7 @@ import {
   LogOut, 
   Menu, 
   X, 
-  SoccerBall,
+  Football,
   LayoutDashboard 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,11 +35,11 @@ const HostSidebar = () => {
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         {!collapsed && (
           <div className="flex items-center space-x-2">
-            <SoccerBall className="h-6 w-6 text-sporty-600" />
+            <Football className="h-6 w-6 text-sporty-600" />
             <span className="font-bold text-lg text-gray-900">Host Portal</span>
           </div>
         )}
-        {collapsed && <SoccerBall className="h-6 w-6 text-sporty-600 mx-auto" />}
+        {collapsed && <Football className="h-6 w-6 text-sporty-600 mx-auto" />}
         <Button
           variant="ghost"
           size="icon"

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FootballIcon } from "@/utils/sportIcons";
@@ -57,21 +56,11 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <FootballIcon className="h-8 w-8 text-sporty-600" />
-            <span className="text-xl font-bold text-sporty-700">Sporty Turf Hub</span>
+            <span className="text-xl font-bold text-sporty-700">SportsHunt</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <form onSubmit={handleSearch} className="relative w-64">
-              <Input
-                type="text"
-                placeholder="Search venues..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full"
-              />
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </form>
             <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors">
               Home
             </Link>
@@ -105,16 +94,6 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-4">
-            <form onSubmit={handleSearch} className="relative">
-              <Input
-                type="text"
-                placeholder="Search venues..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full"
-              />
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </form>
             <div className="flex flex-col space-y-3">
               <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors py-2">
                 Home

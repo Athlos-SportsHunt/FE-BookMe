@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
@@ -35,7 +34,7 @@ const Login = () => {
       setIsLoading(false);
       toast({
         title: "Login Successful",
-        description: "Welcome back to Sporty Turf Hub!",
+        description: "Welcome back to SportsHunt!",
       });
       navigate("/");
     }, 1500);

@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { FootballIcon } from "@/utils/sportIcons";
 
@@ -39,7 +38,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <FootballIcon className="h-8 w-8 text-sporty-500" />
-              <span className="text-xl font-bold">Sporty Turf Hub</span>
+              <span className="text-xl font-bold">SportsHunt</span>
             </div>
             <p className="text-gray-400 mb-4">
               Find and book the best sports venues for your games and training sessions.
@@ -148,7 +147,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Sporty Turf Hub. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SportsHunt. All rights reserved.</p>
         </div>
       </div>
     </footer>

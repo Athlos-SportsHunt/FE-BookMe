@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -143,7 +142,6 @@ const UserProfile = () => {
           <Tabs defaultValue="bookings">
             <TabsList className="w-full mb-6">
               <TabsTrigger value="bookings" className="flex-1">My Bookings</TabsTrigger>
-              <TabsTrigger value="favorites" className="flex-1">Favorite Venues</TabsTrigger>
               <TabsTrigger value="history" className="flex-1">Booking History</TabsTrigger>
             </TabsList>
             
@@ -229,18 +227,6 @@ const UserProfile = () => {
                   </Link>
                 </div>
               )}
-            </TabsContent>
-            
-            <TabsContent value="favorites">
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium mb-2">No Favorites Yet</h3>
-                <p className="text-gray-600 mb-6">You haven't added any venues to your favorites list.</p>
-                <Link to="/">
-                  <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
-                    Browse Venues
-                  </Button>
-                </Link>
-              </div>
             </TabsContent>
             
             <TabsContent value="history">

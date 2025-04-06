@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FootballIcon, CricketIcon, BasketballIcon, TennisIcon, BadmintonIcon, VolleyballIcon } from "@/utils/sportIcons";
@@ -210,7 +209,7 @@ const Home = () => {
             <div className="md:w-2/3 mb-8 md:mb-0">
               <h2 className="text-3xl font-bold mb-4">Own a Sports Venue?</h2>
               <p className="text-xl opacity-90 mb-6">
-                List your venue on Sporty Turf Hub and start earning. It's free to list and takes just a few minutes.
+                List your venue on SportsHunt and start earning. It's free to list and takes just a few minutes.
               </p>
               <Link to="/host/create-venue">
                 <Button size="lg" className="bg-white text-sporty-700 hover:bg-gray-100">

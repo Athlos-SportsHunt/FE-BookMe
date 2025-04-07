@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { 
@@ -12,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { venues } from "@/data/mockData";
 import { Venue, SportType } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -26,6 +24,9 @@ import {
   SheetTitle, 
   SheetTrigger 
 } from "@/components/ui/sheet";
+import { handle_apicall } from "@/services/apis/api_call";
+import {API_ROUTES, getApiUrl} from "@/services/utils";
+import { adaptVenues } from "@/types/adapter";
 
 // Custom icon components for VenueFilter
 const SearchIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
@@ -97,43 +98,43 @@ const VenueFilter = () => {
     setSearchParams(params, { replace: true });
   }, [searchQuery, selectedSports, setSearchParams]);
 
-  // Effect to filter venues based on search and filters
+  // Effect to fetch venues from API based on filters
   useEffect(() => {
     setLoading(true);
     
-    // Simulate API call delay
-    setTimeout(() => {
-      let results = [...venues];
-      
-      // Filter by search query
+    const fetchVenues = async () => {
+      const params = new URLSearchParams();
       if (searchQuery) {
-        results = results.filter(venue => 
-          venue.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          venue.address.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        params.append("name", searchQuery);
       }
-      
-      // Filter by sports
       if (selectedSports.length > 0) {
-        results = results.filter(venue => 
-          venue.turfs.some(turf => 
-            selectedSports.includes(turf.sportType as SportType)
-          )
-        );
+        params.append("sports", selectedSports.join(","));
       }
-      
-      // Filter by price range
-      if (priceRange[0] > 0 || priceRange[1] < 3000) {
-        results = results.filter(venue => 
-          venue.turfs.some(turf => 
-            turf.pricePerHour >= priceRange[0] && turf.pricePerHour <= priceRange[1]
-          )
-        );
+      // Only append min_price if greater than 0, and max_price if less than 3000
+      if (priceRange[0] > 0) {
+        params.append("min_price", priceRange[0].toString());
       }
-      
-      setFilteredVenues(results);
+      if (priceRange[1] < 3000) {
+        params.append("max_price", priceRange[1].toString());
+      }
+
+
+      const response1 = await handle_apicall(`${getApiUrl(API_ROUTES.VENUE.FILTER)}?${params.toString()}`);
+      if (response1.success){
+        console.log(adaptVenues(response1.data.results));
+        setFilteredVenues(adaptVenues(response1.data.results))
+      }
+      else{
+        console.error("Error fetching venues:", response1.error);
+        setFilteredVenues([])
+      }
       setLoading(false);
-    }, 500);
+
+    };
+
+    // Call the API after a short delay (if you want to debounce further user input, you can add debouncing logic here)
+    const timer = setTimeout(fetchVenues, 500);
+    return () => clearTimeout(timer);
   }, [searchQuery, selectedSports, priceRange]);
 
   // Update filter count
@@ -146,7 +147,7 @@ const VenueFilter = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Search query is already being tracked by the effect
+    // Search query is tracked via state and the useEffect will trigger the API call
   };
 
   const handleSportToggle = (sport: SportType) => {
@@ -161,7 +162,7 @@ const VenueFilter = () => {
     setSelectedSports([]);
     setPriceRange([0, 3000]);
     
-    // Clear URL params except for search query
+    // Clear URL params except for the search query
     const params = new URLSearchParams();
     if (searchQuery) {
       params.set("query", searchQuery);
@@ -296,7 +297,7 @@ const VenueFilter = () => {
       {/* Results Section */}
       <div className="mb-4">
         <h2 className="text-xl font-semibold">
-          {loading ? 'Searching venues...' : `${filteredVenues.length} venues found`}
+          {loading ? 'Searching venues...' : `venues`}
         </h2>
       </div>
       

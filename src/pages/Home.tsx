@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SportType } from "@/types";
 import { adaptVenues } from "@/types/adapter";
 import {API_ROUTES, getApiUrl} from "@/services/utils"
+import { handle_apicall } from "@/services/apis/api_call"
 
 const Home = () => {
   const navigate = useNavigate();
@@ -56,16 +57,9 @@ const Home = () => {
 
   useEffect(() => {
     const fetchFeaturedVenues = async () => {
-      try {
-        const url = getApiUrl(API_ROUTES.VENUE.FEATURED);
-        console.log("Fetching featured venues from:", url);
-        // TODO: Implement actual API call here
-        // For now, using mock data
-        const response = await fetch(url);
-        const data = await response.json();
-        setFeaturedVenues(adaptVenues(data));
-      } catch (error) {
-        console.error("Error fetching featured venues:", error);
+      const data = await handle_apicall(getApiUrl(API_ROUTES.VENUE.FEATURED));
+      if (data.success) {
+        setFeaturedVenues(adaptVenues(data.data))
       }
     };
 

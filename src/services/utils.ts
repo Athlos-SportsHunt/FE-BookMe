@@ -10,6 +10,13 @@ export const API_ROUTES = {
         LOGIN : "login/", 
         LOGOUT : "logout/",
     },
+    VENUE : {
+        FEATURED: "venues/featured/",
+        FILTER: "venues/filter/",
+        VENUES: "venues/",
+        VENUE: "venue/{id}/"
+    },
+    ORDER: "orders/create/",
 }
  
 export const getApiUrl = (route: string) => `${API_BASE_URL}/${route}`;

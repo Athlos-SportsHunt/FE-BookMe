@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FootballIcon, CricketIcon, BasketballIcon, TennisIcon, BadmintonIcon, VolleyballIcon } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { venues } from "@/data/mockData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SportType } from "@/types";
+import { adaptVenues } from "@/types/adapter";
+import {API_ROUTES, getApiUrl} from "@/services/utils"
 
 const Home = () => {
   const navigate = useNavigate();
@@ -49,8 +51,26 @@ const Home = () => {
     navigate(`/venue-filter?sport=${encodeURIComponent(sportType)}`);
   };
 
-  // Featured venues (just show 3 for the homepage)
-  const featuredVenues = venues.slice(0, 3);
+  // Featured venues from API
+  const [featuredVenues, setFeaturedVenues] = useState([]);
+
+  useEffect(() => {
+    const fetchFeaturedVenues = async () => {
+      try {
+        const url = getApiUrl(API_ROUTES.VENUE.FEATURED);
+        console.log("Fetching featured venues from:", url);
+        // TODO: Implement actual API call here
+        // For now, using mock data
+        const response = await fetch(url);
+        const data = await response.json();
+        setFeaturedVenues(adaptVenues(data));
+      } catch (error) {
+        console.error("Error fetching featured venues:", error);
+      }
+    };
+
+    fetchFeaturedVenues();
+  }, []);
 
   const sportCategories = [
     { name: "Football", icon: FootballIcon, color: "bg-blue-500" },

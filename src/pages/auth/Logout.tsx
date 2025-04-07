@@ -1,20 +1,16 @@
-
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
+import { API_ROUTES, getApiUrl } from "@/services/utils";
 
 const Logout = () => {
-  const navigate = useNavigate();
-
   useEffect(() => {
-    // Simulate logout process
     const timer = setTimeout(() => {
-      // In a real app, this would clear auth tokens, etc.
-      navigate("/login");
+      // Redirect to the external URL using window.location
+      window.location.href = getApiUrl(API_ROUTES.AUTH.LOGOUT);
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center">

@@ -1,5 +1,3 @@
-import { getApiUrl, API_ROUTES } from "@/services/utils";
-import { adaptVenues } from "@/types/adapter";
 
 export async function handle_apicall(URL: string) {
     try {

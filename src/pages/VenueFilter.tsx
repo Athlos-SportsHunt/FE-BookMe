@@ -119,13 +119,13 @@ const VenueFilter = () => {
       }
 
 
-      const response1 = await handle_apicall(`${getApiUrl(API_ROUTES.VENUE.FILTER)}?${params.toString()}`);
-      if (response1.success){
-        console.log(adaptVenues(response1.data.results));
-        setFilteredVenues(adaptVenues(response1.data.results))
+      const response = await handle_apicall(`${getApiUrl(API_ROUTES.VENUE.FILTER)}?${params.toString()}`);
+      if (response.success){
+        console.log(adaptVenues(response.data.results));
+        setFilteredVenues(adaptVenues(response.data.results))
       }
       else{
-        console.error("Error fetching venues:", response1.error);
+        console.error("Error fetching venues:", response.error);
         setFilteredVenues([])
       }
       setLoading(false);

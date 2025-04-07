@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
@@ -7,12 +6,14 @@ import {
   BasketballIcon, 
   TennisIcon 
 } from "@/utils/sportIcons";
-import { venues } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Venue, Turf } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { adaptVenue } from "@/types/adapter"; // import your adapter function
+import { handle_apicall} from "@/services/apis/api_call";
+import { API_ROUTES, getApiUrl } from "@/services/utils";
 
 // Custom icon components for VenueDetails
 const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
@@ -83,27 +84,24 @@ const VenueDetails = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    // Simulating API fetch with setTimeout
-    const timer = setTimeout(() => {
-      try {
-        if (!venueId) {
-          throw new Error("Venue ID is required");
-        }
-
-        const foundVenue = venues.find((v) => v.id === venueId);
-        if (!foundVenue) {
-          throw new Error("Venue not found");
-        }
-
-        setVenue(foundVenue);
+    const fetchVenueDetails = async () => {
+      if (!venueId) {
+        setError("Venue ID is required");
         setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
-        setLoading(false);
+        return;
       }
-    }, 500);
 
-    return () => clearTimeout(timer);
+      const response = await handle_apicall(getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId)));
+
+      if (response.success){
+        setVenue(adaptVenue(response.data));
+      }else {
+        setError(response.error instanceof Error ? response.error.message : "An unknown error occurred");
+      }
+      setLoading(false);
+    };
+
+    fetchVenueDetails();
   }, [venueId]);
 
   if (loading) {
@@ -173,9 +171,7 @@ const VenueDetails = () => {
           {venue.images.map((image, index) => (
             <div
               key={index}
-              className={`h-20 w-32 cursor-pointer rounded-md overflow-hidden ${
-                activeImageIndex === index ? "ring-2 ring-sporty-600" : ""
-              }`}
+              className={`h-20 w-32 cursor-pointer rounded-md overflow-hidden ${activeImageIndex === index ? "ring-2 ring-sporty-600" : ""}`}
               onClick={() => setActiveImageIndex(index)}
             >
               <img

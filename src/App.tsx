@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { UserProvider } from "./contexts/UserContext";
+import RequireRole from "./components/RequireRole";
 
 // Layouts
 import MainLayout from "./layouts/MainLayout";
@@ -29,6 +31,9 @@ import VenueManagement from "./pages/host/VenueManagement";
 import CreateTurf from "./pages/host/CreateTurf";
 import TurfManagement from "./pages/host/TurfManagement";
 
+// Error Page
+import ErrorPage from "./pages/ErrorPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -37,7 +42,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
+        <UserProvider>
+          <Routes>
           {/* Core User Routes */}
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
@@ -55,6 +61,7 @@ const App = () => (
 
           {/* Host Routes */}
           <Route path="/host" element={<HostLayout />}>
+          
             <Route path="dashboard" element={<HostDashboard />} />
             <Route path="create-venue" element={<CreateVenue />} />
             <Route path="venue/:venueId" element={<VenueManagement />} />
@@ -63,8 +70,10 @@ const App = () => (
           </Route>
 
           {/* 404 Route */}
+          <Route path="/error" element={<ErrorPage />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </UserProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,19 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FootballIcon } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { authService } from "@/services/auth";
 import { API_ROUTES, getApiUrl } from "@/services/utils";
-
+import { useUser } from "../contexts/UserContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ id: number; name: string; email: string; is_host: boolean } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const { user, loading } = useUser();
 
   const handleLogout = () => {
     window.location.href = API_ROUTES.AUTH.LOGOUT;
@@ -48,22 +46,6 @@ const Navbar = () => {
     </svg>
   );
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const response = await authService.checkAuth();
-        setIsAuthenticated(response.isAuthenticated);
-        setUser(response.user || null);
-      } catch (error) {
-        console.error("Authentication check failed:", error);
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
-
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
@@ -77,12 +59,12 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors">Home</Link>
-            {isAuthenticated && user?.is_host && (
-              <Link to="/host-dashboard" className="text-gray-600 hover:text-sporty-600 transition-colors">Host Dashboard</Link>
+            {user?.is_host && (
+              <Link to="/host/dashboard" className="text-gray-600 hover:text-sporty-600 transition-colors">Host Dashboard</Link>
             )}
-            {isAuthenticated ? (
+            {user ? (
               <>
-                <span className="text-gray-700 font-medium">{user?.name}</span>
+                <span className="text-gray-700 font-medium">{user.name}</span>
                 <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">Logout</Button>
               </>
             ) : (
@@ -105,12 +87,12 @@ const Navbar = () => {
           <div className="md:hidden mt-4 pb-4 space-y-4">
             <div className="flex flex-col space-y-3">
               <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors py-2">Home</Link>
-              {isAuthenticated && user?.is_host && (
+              {user?.is_host && (
                 <Link to="/host-dashboard" className="text-gray-600 hover:text-sporty-600 transition-colors py-2">Host Dashboard</Link>
               )}
-              {isAuthenticated ? (
+              {user ? (
                 <>
-                  <span className="text-gray-700 font-medium">{user?.name}</span>
+                  <span className="text-gray-700 font-medium">{user.name}</span>
                   <Button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 text-white">Logout</Button>
                 </>
               ) : (

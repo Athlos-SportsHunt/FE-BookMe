@@ -18,12 +18,24 @@ export const authService = {
         });
        
         if (!response.ok) {
-          throw new Error('Auth check failed');
+          return {
+            isAuthenticated: false,
+            serverDown: true,
+            error: 'Auth check failed'
+          };
         }
-        return await response.json();
+        const data = await response.json();
+        return {
+          ...data,
+          serverDown: false
+        };
       } catch (error) {
         console.error('Auth check error:', error);
-        return { isAuthenticated: false, user: null };
+        return {
+          isAuthenticated: false,
+          serverDown: true,
+          error: error instanceof Error ? error.message : 'Server connection failed'
+        };
       }
     },
 

@@ -15,6 +15,9 @@ import { format, addHours, addMinutes, isBefore, isAfter, parseISO, set } from "
 import { toast } from "@/components/ui/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { handle_apicall } from "@/services/apis/api_call";
+import { API_ROUTES, getApiUrl } from "@/services/utils";
+import { adaptVenue, adaptTurf } from "@/types/adapter";
 
 const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -99,29 +102,42 @@ const TurfDetails = () => {
   const [sliderMax, setSliderMax] = useState(32); // (16 hours * 2 slots per hour)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       try {
         if (!venueId || !turfId) {
           throw new Error("Venue ID and Turf ID are required");
         }
 
-        const foundVenue = venues.find((v) => v.id === venueId);
-        if (!foundVenue) {
-          throw new Error("Venue not found");
-        }
 
-        const foundTurf = turfs.find((t) => t.id === turfId);
-        if (!foundTurf) {
-          throw new Error("Turf not found");
-        }
+        const response = await handle_apicall(getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId)));
 
-        if (foundTurf.venueId !== venueId) {
-          throw new Error("Turf does not belong to the specified venue");
+        if (response.success){
+          const foundVenue1 = adaptVenue(response.data);
+          const foundTurf1 = foundVenue1.turfs.find((t) => t.id === turfId);
+          setVenue(foundVenue1);
+          setTurf(foundTurf1);
+        }else{
+          console.log("error");
         }
-
-        setVenue(foundVenue);
-        setTurf(foundTurf);
         setLoading(false);
+        
+
+
+        // const foundVenue = venues.find((v) => v.id === venueId);
+        // if (!foundVenue) {
+        //   throw new Error("Venue not found");
+        // }
+
+        // const foundTurf = turfs.find((t) => t.id === turfId);
+        // if (!foundTurf) {
+        //   throw new Error("Turf not found");
+        // }
+
+        // if (foundTurf.venueId !== venueId) {
+        //   throw new Error("Turf does not belong to the specified venue");
+        // }
+        // console.log(foundVenue, foundTurf);
+
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
         setLoading(false);

@@ -22,7 +22,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { turfs, venues, bookings } from "@/data/mockData";
+import { turfs, bookings } from "@/data/mockData";
 import { Turf, Venue, Booking } from "@/types";
 import { 
   AlertDialog,
@@ -38,6 +38,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { adaptVenue } from "@/types/adapter";
+import { handle_apicall } from "@/services/apis/api_call";
+import { API_ROUTES, getApiUrl } from "@/services/utils";
 
 const TurfManagement = () => {
   const { venueId, turfId } = useParams<{ venueId: string; turfId: string }>();
@@ -51,24 +54,29 @@ const TurfManagement = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const foundTurf = turfs.find(t => t.id === turfId);
-      
-      if (foundTurf) {
-        setTurf(foundTurf);
-        
-        const foundVenue = venues.find(v => v.id === foundTurf.venueId);
-        setVenue(foundVenue || null);
-        
-        const foundBookings = bookings.filter(b => b.turfId === turfId);
-        setTurfBookings(foundBookings);
+    // Fetch venue and turf data from API
+    const fetchTurfData = async () => {
+      if (!venueId || !turfId) {
+        setLoading(false);
+        return;
       }
-      
+      setLoading(true);
+      const response = await handle_apicall(getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId)));
+      if (response.success) {
+        const adaptedVenue = adaptVenue(response.data);
+        setVenue(adaptedVenue);
+        const foundTurf = adaptedVenue.turfs.find((t) => t.id === turfId);
+        setTurf(foundTurf || null);
+        // Bookings remain as sample/mock data for now
+      } else {
+        setVenue(null);
+        setTurf(null);
+      }
       setLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, [turfId, venueId]);
+    };
+    fetchTurfData();
+    // eslint-disable-next-line
+  }, [venueId, turfId]);
 
   const handleDeleteTurf = () => {
     toast({

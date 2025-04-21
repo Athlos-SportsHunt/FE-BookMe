@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -24,8 +23,9 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { venues, turfs, bookings } from "@/data/mockData";
+import { bookings } from "@/data/mockData";
 import { Venue, Turf } from "@/types";
+import { adaptVenue } from "@/types/adapter";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO } from "date-fns";
+import { handle_apicall } from "@/services/apis/api_call";
+import { API_ROUTES, getApiUrl } from "@/services/utils";
 
 const VenueManagement = () => {
   const { venueId } = useParams<{ venueId: string }>();
@@ -52,27 +54,27 @@ const VenueManagement = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    // Simulate API call to fetch venue data
-    const timer = setTimeout(() => {
-      const foundVenue = venues.find(v => v.id === venueId);
-      
-      if (foundVenue) {
-        setVenue(foundVenue);
-        
-        // Get turfs for this venue
-        const foundTurfs = turfs.filter(t => t.venueId === venueId);
-        setVenueTurfs(foundTurfs);
-        
-        // Get bookings for this venue's turfs
-        const turfIds = foundTurfs.map(t => t.id);
-        const foundBookings = bookings.filter(b => turfIds.includes(b.turfId));
-        setVenueBookings(foundBookings);
+    // Fetch venue data from API
+    const fetchVenue = async () => {
+      if (!venueId) {
+        setLoading(false);
+        return;
       }
-      
+      setLoading(true);
+      const response = await handle_apicall(getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId)));
+      if (response.success) {
+        const adaptedVenue = adaptVenue(response.data);
+        setVenue(adaptedVenue);
+        setVenueTurfs(adaptedVenue.turfs);
+        // Bookings remain as sample/mock data for now
+        setVenueBookings([])
+      } else {
+        setVenue(null);
+      }
       setLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
+    };
+    fetchVenue();
+    // eslint-disable-next-line
   }, [venueId]);
 
   const handleDeleteVenue = () => {
@@ -272,7 +274,7 @@ const VenueManagement = () => {
               {venueBookings.length > 0 ? (
                 <div className="space-y-4">
                   {venueBookings.map((booking) => {
-                    const turf = turfs.find(t => t.id === booking.turfId);
+                    const turf = venueTurfs.find(t => t.id === booking.turfId);
                     if (!turf) return null;
                     
                     return (

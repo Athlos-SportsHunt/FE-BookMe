@@ -57,7 +57,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+      <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors">Home</Link>
             {user?.is_host && (
               <Link to="/host/dashboard" className="text-gray-600 hover:text-sporty-600 transition-colors">Host Dashboard</Link>

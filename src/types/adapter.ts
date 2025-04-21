@@ -1,4 +1,4 @@
-import { Turf, Venue } from "./index";
+import { Turf, Venue, Booking } from "./index";
 
 // Dummy values for fields not provided by the backend
 const DUMMY_ADDRESS = "Address not available";
@@ -102,3 +102,27 @@ export function adaptVenues(venues: any[]): Venue[] {
   console.log(JSON.stringify(adaptedVenues, null, 2));
 */
 
+const DUMMY_STATUS = "confirmed";
+const DUMMY_PAYMENT_ID = "payment_dummy";
+const dummyBookingTimestamp = new Date().toISOString();
+
+// Adapter function to adapt a single booking
+export function adaptBooking(bookingData: any): Booking {
+  return {
+    id: bookingData.id ? String(bookingData.id) : "dummy_id",
+    turfId: bookingData.turf?.id ? String(bookingData.turf.id) : "0",
+    userId: bookingData.user_details?.username ? String(bookingData.user_details.username) : "0",
+    startTime: bookingData.start_datetime || dummyBookingTimestamp,
+    endTime: bookingData.end_datetime || dummyBookingTimestamp,
+    totalPrice: parseFloat(bookingData.total_price || "0"),
+    status: DUMMY_STATUS,
+    paymentId: DUMMY_PAYMENT_ID,
+    createdAt: dummyBookingTimestamp,
+    updatedAt: dummyBookingTimestamp,
+  };
+}
+
+// Adapter function for an array of bookings
+export function adaptBookings(rawBookings: any[]): Booking[] {
+  return rawBookings.map(adaptBooking);
+}

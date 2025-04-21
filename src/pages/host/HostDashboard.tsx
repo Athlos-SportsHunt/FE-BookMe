@@ -24,6 +24,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from "date-fns";
+import { API_ROUTES, getApiUrl } from "@/services/utils";
+import { handle_apicall } from "@/services/apis/api_call";
+import { adaptVenues, adaptBookings } from "@/types/adapter";
 
 // Assume the current host is user with ID 1
 const currentHostId = "1";
@@ -44,8 +47,32 @@ const HostDashboard = () => {
     // Simulate API fetch with setTimeout
     const timer = setTimeout(() => {
       // Get host's venues
+
+      const myVenues = async () => {
+        const data = await handle_apicall(getApiUrl(API_ROUTES.HOST.VENUES));
+        const booking_data = await handle_apicall(getApiUrl(API_ROUTES.HOST.BOOKINGS));
+
+        if (data.success) {
+          const Venues = adaptVenues(data.data);
+          setHostVenues(Venues);
+
+          const hostTurfIds = Venues
+          .flatMap((venue) => venue.turfs)
+          .map((turf) => turf.id);
+
+          
+          if (booking_data.success) {
+            console.log(booking_data.data)
+            console.log(adaptBookings(booking_data.data))
+            const hostBookings = adaptBookings(booking_data.data);
+            setRecentBookings(hostBookings);
+          }
+        }
+      }
+      myVenues();
+      
       const filteredVenues = venues.filter((venue) => venue.host.id === currentHostId);
-      setHostVenues(filteredVenues);
+      // setHostVenues(filteredVenues);
       
       // Get turfs belonging to host's venues
       const hostTurfIds = filteredVenues
@@ -61,7 +88,7 @@ const HostDashboard = () => {
       const sortedBookings = [...hostBookings].sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-      setRecentBookings(sortedBookings);
+      // setRecentBookings(sortedBookings);
       
       // Calculate stats
       setStats({
@@ -311,7 +338,7 @@ const HostDashboard = () => {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>User ID: {booking.userId}</TableCell>
+                          <TableCell>{booking.userId}</TableCell>
                           <TableCell>₹{booking.totalPrice}</TableCell>
                           <TableCell>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize

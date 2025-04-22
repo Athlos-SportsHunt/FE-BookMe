@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react"; // Fix the import
+import { venueService } from "@/services/venue";
 
 const CreateVenue = () => {
   const navigate = useNavigate();
@@ -96,22 +97,53 @@ const CreateVenue = () => {
   };
 
   // Submit form
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
     setIsSubmitting(true);
     
-    // Simulate API call to create venue
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Venue Created",
-        description: "Your venue has been created successfully!",
+    try {
+      // Create FormData object
+      const formData = new FormData();
+      formData.append('name', venueName);
+      formData.append('address', venueAddress);
+      formData.append('description', venueDescription);
+      if (googleMapsLink) {
+        formData.append('google_maps_link', googleMapsLink);
+      }
+      
+      // Append each image file
+      venueImages.forEach((image, index) => {
+        formData.append(`images`, image);
       });
-      navigate("/host/dashboard");
-    }, 1500);
+
+      const response = await venueService.createVenue(formData);
+      
+      if (response.success) {
+        toast({
+          title: "Venue Created",
+          description: "Your venue has been created successfully!",
+        });
+        // Redirect to the venue page using the venue ID from the response
+        navigate(`/venue/${response.data.id}`);
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to create venue. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

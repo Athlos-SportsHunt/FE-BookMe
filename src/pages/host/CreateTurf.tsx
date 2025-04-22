@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
@@ -52,7 +51,7 @@ const CreateTurf = () => {
   const { toast } = useToast();
   
   const [venue, setVenue] = useState<Venue | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   
   // Form state
   const [turfName, setTurfName] = useState("");
@@ -72,17 +71,27 @@ const CreateTurf = () => {
     pricePerHour: "",
   });
 
-  // Fetch venue data
+  // Fetch venue data from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const foundVenue = venues.find(v => v.id === venueId);
-      if (foundVenue) {
-        setVenue(foundVenue);
+    const fetchVenue = async () => {
+      setLoading(true);
+      try {
+        const { API_ROUTES, getApiUrl } = await import("@/services/utils");
+        const { adaptVenue } = await import("@/types/adapter");
+        if (!venueId) throw new Error("Venue ID is required");
+        const venueRoute = API_ROUTES.VENUE.VENUE.replace("{id}", venueId);
+        const response = await fetch(getApiUrl(venueRoute), { credentials: "include" });
+        if (!response.ok) throw new Error("Failed to fetch venue details");
+        const data = await response.json();
+        setVenue(adaptVenue(data));
+      } catch (err) {
+        setVenue(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
+    };
+    fetchVenue();
+    // eslint-disable-next-line
   }, [venueId]);
 
   // Update available amenities when sport type changes
@@ -173,22 +182,58 @@ const CreateTurf = () => {
   };
 
   // Submit form
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-    
     setIsSubmitting(true);
-    
-    // Simulate API call to create turf
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("name", turfName);
+      formData.append("sport_type", sportType);
+      formData.append("price_per_hr", pricePerHour);
+      formData.append("description", description);
+      formData.append("venue_id", venueId || "");
+      selectedAmenities.forEach((amenityId) => {
+        formData.append("amenities", amenityId);
+      });
+      turfImages.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      // Use the correct API route for creating a turf
+      const { API_ROUTES, getApiUrl } = await import("@/services/utils");
+      const { getCSRFToken } = await import("@/services/utils");
+      const turfRoute = API_ROUTES.HOST.CREATE_TURF.replace("{venue_id}", venueId || "");
+
+      const response = await fetch(getApiUrl(turfRoute), {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+        headers: {
+          "X-CSRFToken": getCSRFToken() || "",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to create turf");
+      }
+
       toast({
         title: "Turf Created",
         description: "Your turf has been created successfully!",
       });
       navigate(`/host/venue/${venueId}`);
-    }, 1500);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to create turf.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {

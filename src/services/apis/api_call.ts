@@ -1,8 +1,9 @@
 
 export async function handle_apicall(URL: string) {
     try {
-        const response = await fetch(URL);
-        
+        const response = await fetch(URL, {
+            credentials: "include"
+        });  
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

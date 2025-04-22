@@ -21,6 +21,7 @@ export const API_ROUTES = {
     HOST: {
         VENUES: "hosts/venues/",
         CREATE_VENUE : "hosts/venues/create/",
+        CREATE_TURF : "hosts/venues/{venue_id}/turfs/create/",
         BOOKINGS: "hosts/bookings/"
     }
 }

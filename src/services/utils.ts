@@ -17,7 +17,7 @@ export const API_ROUTES = {
         VENUE: "venue/{id}/"
     },
     ORDER: "orders/create/",
-
+    CHECKOUT: "orders/checkout/",
     HOST: {
         VENUES: "hosts/venues/",
         CREATE_VENUE : "hosts/venues/create/",

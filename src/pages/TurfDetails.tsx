@@ -275,9 +275,106 @@ const TurfDetails = () => {
     return (turf.pricePerHour / 60) * durationMinutes;
   };
 
-  const handleBookNow = () => {
-    if (!selectedStartTime) return;
-    setBookingDialogOpen(true);
+  // Helper to dynamically load Razorpay script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve, reject) => {
+      if (document.getElementById("razorpay-script")) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.id = "razorpay-script";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => reject("Failed to load Razorpay script");
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleBookNow = async () => {
+    if (!selectedStartTime || !turf || !venue) return;
+
+    
+    try {
+      // const start_date = selectedStartTime.toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM
+      const formatLocalDate = (date: Date) => {
+        return format(date, "yyyy-MM-dd'T'HH:mm"); // Outputs local time in format "2024-03-15T14:30"
+      };
+      const start_date =  formatLocalDate(selectedStartTime);
+      const payload = {
+        venue_id: venue.id,
+        turf_id: turf.id,
+        start_date,
+        duration: durationMinutes,
+      };
+      const response = await fetch(getApiUrl(API_ROUTES.ORDER), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (response.status === 201 && data && data.order_id) {
+        const { order_id, amount, currency, key_id, booking_details } = data;
+        await loadRazorpayScript();
+        const options = {
+          key: key_id,
+          amount: amount.toString(),
+          currency,
+          name: booking_details.venue,
+          description: `Booking for ${booking_details.turf}`,
+          order_id,
+          handler: async function (res: any) {
+            try {
+              const checkoutResponse = await fetch(getApiUrl(API_ROUTES.CHECKOUT), {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(res),
+              });
+              if (checkoutResponse.status === 200) {
+                setBookingConfirmed(true);
+                setBookingDialogOpen(true);
+                toast({
+                  title: "Payment Successful!",
+                  description: `Your booking for ${booking_details.turf} is confirmed!`,
+                  variant: "default",
+                });
+              } else {
+                toast({
+                  title: "Payment Verification Failed",
+                  description: "We could not verify your payment. Please contact support.",
+                  variant: "destructive",
+                });
+              }
+            } catch (err: any) {
+              toast({
+                title: "Error",
+                description: err.message || "Something went wrong during payment verification.",
+                variant: "destructive",
+              });
+            }
+          },
+          prefill: {},
+          theme: { color: "#16a34a" },
+          modal: {
+            ondismiss: function () {
+              toast({ title: "Payment Cancelled", description: "You cancelled the payment.", variant: "destructive" });
+            },
+          },
+        };
+        // @ts-ignore
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        toast({ title: "Booking Failed", description: data.message || "Could not create order.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Something went wrong.", variant: "destructive" });
+    }
   };
 
   const handleConfirmBooking = () => {

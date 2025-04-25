@@ -41,6 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { adaptVenue } from "@/types/adapter";
 import { handle_apicall } from "@/services/apis/api_call";
 import { API_ROUTES, getApiUrl } from "@/services/utils";
+import AddBookingSlotDialog from "@/components/AddBookingSlotDialog";
 
 const TurfManagement = () => {
   const { venueId, turfId } = useParams<{ venueId: string; turfId: string }>();
@@ -84,6 +85,44 @@ const TurfManagement = () => {
       description: "The turf has been deleted successfully.",
     });
     navigate(`/host/venue/${venueId}`);
+  };
+
+  const handleAddOfflineBooking = async (data: {
+    date: string;
+    startTime: string;
+    duration: number;
+    userName: string;
+  }) => {
+    const toISODateTime = (date: string, time: string) => `${date}T${time}`;
+    const payload = {
+      venue_id: venueId,
+      turf_id: turfId,
+      start_date: toISODateTime(data.date, data.startTime),
+      duration: data.duration,
+      user_name: data.userName,
+    };
+    try {
+      const res = await fetch(getApiUrl(API_ROUTES.HOST.OFFLINE_BOOKING), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      toast({
+        title: res.ok ? "Offline Booking Added" : "Booking Failed",
+        description: result.message || result.error || (res.ok ? "Booking created successfully." : "Failed to create booking."),
+        variant: res.ok ? "default" : "destructive",
+      });
+    } catch (err) {
+      toast({
+        title: "Booking Failed",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const groupBookingsByDate = (bookings: Booking[]) => {
@@ -460,9 +499,7 @@ const TurfManagement = () => {
               <Button variant="outline" className="w-full justify-start">
                 <Edit className="mr-2 h-4 w-4" /> Edit Turf Details
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Image className="mr-2 h-4 w-4" /> Manage Photos
-              </Button>
+               <AddBookingSlotDialog onAdd={handleAddOfflineBooking} />
               <Button variant="outline" className="w-full justify-start">
                 <Settings className="mr-2 h-4 w-4" /> Availability Settings
               </Button>

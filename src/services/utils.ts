@@ -22,7 +22,8 @@ export const API_ROUTES = {
         VENUES: "hosts/venues/",
         CREATE_VENUE : "hosts/venues/create/",
         CREATE_TURF : "hosts/venues/{venue_id}/turfs/create/",
-        BOOKINGS: "hosts/bookings/"
+        BOOKINGS: "hosts/bookings/",
+        OFFLINE_BOOKING: "hosts/offline-booking/"
     }
 }
  

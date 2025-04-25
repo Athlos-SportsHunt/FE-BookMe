@@ -62,8 +62,6 @@ const HostDashboard = () => {
 
           
           if (booking_data.success) {
-            console.log(booking_data.data)
-            console.log(adaptBookings(booking_data.data))
             const hostBookings = adaptBookings(booking_data.data);
             setRecentBookings(hostBookings);
           }

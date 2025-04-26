@@ -6,6 +6,8 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 interface User {
   id: string;
   username: string;
+  email: string;
+  is_host: boolean;
   role: 'host' | 'player' | 'admin';
   // Add other user properties as needed
 }
@@ -42,7 +44,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (response.isAuthenticated && response.user) {
-        setUser(response.user);
+        // Map backend user fields to User object
+        setUser({
+          id: String(response.user.id),
+          username: response.user.name,
+          email: response.user.email,
+          is_host: !!response.user.is_host,
+          role: response.user.is_host ? 'host' : 'player',
+        });
         setServerDown(false);
       }
     } catch (err) {

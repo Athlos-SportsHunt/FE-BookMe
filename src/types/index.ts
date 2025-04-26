@@ -49,10 +49,12 @@ export interface Booking {
   startTime: string;
   endTime: string;
   totalPrice: number;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  status: "offline" | "online";
   paymentId?: string;
   createdAt: string;
   updatedAt: string;
+  turf?: any;
+  venue_name?: string;
 }
 
 export interface User {

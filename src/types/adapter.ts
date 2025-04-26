@@ -115,10 +115,12 @@ export function adaptBooking(bookingData: any): Booking {
     startTime: bookingData.start_datetime || dummyBookingTimestamp,
     endTime: bookingData.end_datetime || dummyBookingTimestamp,
     totalPrice: parseFloat(bookingData.total_price || "0"),
-    status: DUMMY_STATUS,
+    status: !bookingData.is_offline ? "online" : "offline",
     paymentId: DUMMY_PAYMENT_ID,
     createdAt: dummyBookingTimestamp,
     updatedAt: dummyBookingTimestamp,
+    turf: bookingData.turf || null,
+    venue_name: bookingData.venue_name || null,
   };
 }
 

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { API_ROUTES, getApiUrl } from "@/services/utils";
 import { useUser } from "../contexts/UserContext";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,17 +58,37 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-      <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors">Home</Link>
-            {user?.is_host && (
-              <Link to="/host/dashboard" className="text-gray-600 hover:text-sporty-600 transition-colors">Host Dashboard</Link>
-            )}
             {user ? (
-              <>
-                <span className="text-gray-700 font-medium">{user.name}</span>
-                <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">Logout</Button>
-              </>
-            ) : (
+                <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                  variant="ghost"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md border border-gray-200 shadow-sm bg-green-600 hover:bg-green-700 transition"
+                  >
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback>{user.username?.charAt(0) || "U"}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium text-white">{user.username}</span>
+                  <svg className="ml-2 h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="mt-2 min-w-[180px] rounded-md shadow-lg border border-gray-200 bg-white">
+                  {user.is_host && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/host/dashboard" className="w-full text-left">Host Dashboard</Link>
+                  </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild>
+                  <Link to="/profile" className="w-full text-left">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer w-full text-left">Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+                </DropdownMenu>
+                ) : (
               <Link to={getApiUrl(API_ROUTES.AUTH.LOGIN)}>
                 <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
                   <UserIcon className="mr-2 h-4 w-4" /> Login
@@ -87,14 +108,28 @@ const Navbar = () => {
           <div className="md:hidden mt-4 pb-4 space-y-4">
             <div className="flex flex-col space-y-3">
               <Link to="/" className="text-gray-600 hover:text-sporty-600 transition-colors py-2">Home</Link>
-              {user?.is_host && (
-                <Link to="/host-dashboard" className="text-gray-600 hover:text-sporty-600 transition-colors py-2">Host Dashboard</Link>
-              )}
               {user ? (
-                <>
-                  <span className="text-gray-700 font-medium">{user.name}</span>
-                  <Button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 text-white">Logout</Button>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center space-x-2 w-full justify-start">
+                      <Avatar className="h-7 w-7">
+                        <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium text-gray-700">{user.name}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {user.is_host && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/host/dashboard">Host Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">Logout</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link to={getApiUrl(API_ROUTES.AUTH.LOGIN)}>
                   <Button className="w-full bg-sporty-600 hover:bg-sporty-700 text-white">

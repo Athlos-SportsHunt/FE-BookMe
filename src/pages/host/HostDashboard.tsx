@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -12,7 +11,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { venues, bookings, turfs } from "@/data/mockData";
 import { 
   Table, 
   TableBody, 
@@ -44,80 +42,59 @@ const HostDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API fetch with setTimeout
-    const timer = setTimeout(() => {
-      // Get host's venues
-
-      const myVenues = async () => {
-        const data = await handle_apicall(getApiUrl(API_ROUTES.HOST.VENUES));
-        const booking_data = await handle_apicall(getApiUrl(API_ROUTES.HOST.BOOKINGS));
-
-        if (data.success) {
-          const Venues = adaptVenues(data.data);
-          setHostVenues(Venues);
-
-          const hostTurfIds = Venues
-          .flatMap((venue) => venue.turfs)
-          .map((turf) => turf.id);
-
-          
-          if (booking_data.success) {
-            const hostBookings = adaptBookings(booking_data.data);
-            setRecentBookings(hostBookings);
-          }
-        }
+    // Fetch venues and recent bookings from API
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      // Fetch venues
+      const venuesRes = await handle_apicall(getApiUrl(API_ROUTES.HOST.VENUES));
+      if (venuesRes.success) {
+        const Venues = adaptVenues(venuesRes.data);
+        setHostVenues(Venues);
+        // Calculate stats
+        const hostTurfIds = Venues.flatMap((venue) => venue.turfs).map((turf) => turf.id);
+        setStats((prev) => ({
+          ...prev,
+          venuesCount: Venues.length,
+          turfsCount: hostTurfIds.length,
+        }));
       }
-      myVenues();
-      
-      const filteredVenues = venues.filter((venue) => venue.host.id === currentHostId);
-      // setHostVenues(filteredVenues);
-      
-      // Get turfs belonging to host's venues
-      const hostTurfIds = filteredVenues
-        .flatMap((venue) => venue.turfs)
-        .map((turf) => turf.id);
-      
-      // Get bookings for host's turfs
-      const hostBookings = bookings.filter((booking) => 
-        hostTurfIds.includes(booking.turfId)
-      );
-      
-      // Set recent bookings (most recent first)
-      const sortedBookings = [...hostBookings].sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      // setRecentBookings(sortedBookings);
-      
-      // Calculate stats
-      setStats({
-        venuesCount: filteredVenues.length,
-        turfsCount: hostTurfIds.length,
-        bookingsCount: hostBookings.length,
-        totalRevenue: hostBookings.reduce((total, booking) => total + booking.totalPrice, 0),
-      });
-      
+      // Fetch recent bookings
+      const recentBookingsRes = await handle_apicall(getApiUrl(API_ROUTES.HOST.RECENT_BOOKINGS));
+      if (recentBookingsRes.success) {
+        const adaptedBookings = adaptBookings(recentBookingsRes.data);
+        console.log(recentBookingsRes.data);
+        console.log(adaptedBookings);
+        setRecentBookings(adaptedBookings);
+        setStats((prev) => ({
+          ...prev,
+          bookingsCount: adaptedBookings.length,
+          totalRevenue: adaptedBookings.reduce((total, booking) => total + booking.totalPrice, 0),
+        }));
+      }
       // Generate sample revenue data (in a real app, this would come from API)
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const revenueByMonth = months.map(month => ({
         name: month,
         revenue: Math.floor(Math.random() * 50000) + 10000,
       }));
-      
       setRevenueData(revenueByMonth);
       setLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
+    };
+    fetchDashboardData();
   }, []);
 
-  // Function to get turf details for a booking
+  // Function to get turf details for a booking from API data
   const getTurfDetails = (turfId) => {
-    return turfs.find((turf) => turf.id === turfId);
+    for (const venue of hostVenues) {
+      const turf = venue.turfs.find((t) => t.id === turfId);
+      if (turf) return { ...turf, venueId: venue.id };
+    }
+    return null;
   };
 
-  // Function to get venue details for a turf
+  // Function to get venue details for a turf from API data
   const getVenueDetails = (venueId) => {
-    return venues.find((venue) => venue.id === venueId);
+    return hostVenues.find((venue) => venue.id === venueId);
   };
 
   if (loading) {
@@ -261,7 +238,7 @@ const HostDashboard = () => {
                               <div className="flex items-center mt-2 text-sm">
                                 <span className="mr-4 text-gray-500">{venue.turfs.length} Turfs</span>
                                 <span className="text-gray-500">
-                                  {bookings.filter(booking => 
+                                  {recentBookings.filter(booking => 
                                     venue.turfs.map(turf => turf.id).includes(booking.turfId)
                                   ).length} Bookings
                                 </span>
@@ -340,8 +317,8 @@ const HostDashboard = () => {
                           <TableCell>₹{booking.totalPrice}</TableCell>
                           <TableCell>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize
-                              ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
-                                booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              ${booking.status === 'online' ? 'bg-green-100 text-green-800' : 
+                                booking.status === 'offline' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-red-100 text-red-800'}`}
                             >
                               {booking.status}

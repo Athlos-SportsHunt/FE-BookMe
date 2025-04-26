@@ -18,12 +18,17 @@ export const API_ROUTES = {
     },
     ORDER: "orders/create/",
     CHECKOUT: "orders/checkout/",
+    MY_BOOKINGS: "my-bookings/",
     HOST: {
         VENUES: "hosts/venues/",
         CREATE_VENUE : "hosts/venues/create/",
         CREATE_TURF : "hosts/venues/{venue_id}/turfs/create/",
         BOOKINGS: "hosts/bookings/",
-        OFFLINE_BOOKING: "hosts/offline-booking/"
+        OFFLINE_BOOKING: "hosts/offline-booking/",
+        RECENT_BOOKINGS: "hosts/recent-bookings/",
+        VENUE_BOOKINGS: "hosts/venue/{id}/bookings/",
+        TURF_BOOKINGS: "hosts/turf/{id}/bookings/",
+
     }
 }
  

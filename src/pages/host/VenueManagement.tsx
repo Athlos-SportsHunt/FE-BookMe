@@ -25,7 +25,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { bookings } from "@/data/mockData";
 import { Venue, Turf } from "@/types";
-import { adaptVenue } from "@/types/adapter";
+import { adaptVenue, adaptBookings } from "@/types/adapter";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -66,8 +66,22 @@ const VenueManagement = () => {
         const adaptedVenue = adaptVenue(response.data);
         setVenue(adaptedVenue);
         setVenueTurfs(adaptedVenue.turfs);
-        // Bookings remain as sample/mock data for now
-        setVenueBookings([])
+        // make and API call to get bookings for the venue
+        const bookingsResponse = await handle_apicall(getApiUrl(API_ROUTES.HOST.VENUE_BOOKINGS.replace("{id}", venueId)));
+        
+        if (bookingsResponse.success) {
+          console.log(bookingsResponse.data);
+          console.log(adaptBookings(bookingsResponse.data));
+          setVenueBookings(adaptBookings(bookingsResponse.data));
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to fetch venue bookings.",
+            variant: "destructive",
+          });
+        }
+
+        // setVenueBookings([])
       } else {
         setVenue(null);
       }
@@ -301,8 +315,8 @@ const VenueManagement = () => {
                             <div className="md:text-right mt-4 md:mt-0">
                               <div className="text-lg font-bold text-sporty-600">₹{booking.totalPrice}</div>
                               <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize mt-1
-                                ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
-                                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                ${booking.status === 'online' ? 'bg-green-100 text-green-800' : 
+                                  booking.status === 'offline' ? 'bg-yellow-100 text-yellow-800' :
                                   'bg-red-100 text-red-800'}`}
                               >
                                 {booking.status}

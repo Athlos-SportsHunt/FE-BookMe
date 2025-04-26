@@ -38,7 +38,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { adaptVenue } from "@/types/adapter";
+import { adaptVenue, adaptBookings } from "@/types/adapter";
 import { handle_apicall } from "@/services/apis/api_call";
 import { API_ROUTES, getApiUrl } from "@/services/utils";
 import AddBookingSlotDialog from "@/components/AddBookingSlotDialog";
@@ -68,6 +68,24 @@ const TurfManagement = () => {
         setVenue(adaptedVenue);
         const foundTurf = adaptedVenue.turfs.find((t) => t.id === turfId);
         setTurf(foundTurf || null);
+        if (foundTurf) {
+          const turfBookingsResponse = await handle_apicall(getApiUrl(API_ROUTES.HOST.TURF_BOOKINGS.replace("{id}", turfId)));
+          if (turfBookingsResponse.success) {
+            setTurfBookings(adaptBookings(turfBookingsResponse.data));
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to fetch turf bookings.",
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Error",
+            description: "Turf not found.",
+            variant: "destructive",
+          });
+        }
         // Bookings remain as sample/mock data for now
       } else {
         setVenue(null);
@@ -264,8 +282,8 @@ const TurfManagement = () => {
                               <div className="md:text-right mt-4 md:mt-0">
                                 <div className="text-lg font-bold text-sporty-600">₹{booking.totalPrice}</div>
                                 <Badge className={`${
-                                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 
-                                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' :
+                                  booking.status === 'online' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 
+                                  booking.status === 'offline' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' :
                                   'bg-red-100 text-red-800 hover:bg-red-200'}`}
                                 >
                                   {booking.status}

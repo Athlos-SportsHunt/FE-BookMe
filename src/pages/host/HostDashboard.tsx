@@ -26,8 +26,6 @@ import { API_ROUTES, getApiUrl } from "@/services/utils";
 import { handle_apicall } from "@/services/apis/api_call";
 import { adaptVenues, adaptBookings } from "@/types/adapter";
 
-// Assume the current host is user with ID 1
-const currentHostId = "1";
 
 const HostDashboard = () => {
   const [hostVenues, setHostVenues] = useState([]);
@@ -62,8 +60,6 @@ const HostDashboard = () => {
       const recentBookingsRes = await handle_apicall(getApiUrl(API_ROUTES.HOST.RECENT_BOOKINGS));
       if (recentBookingsRes.success) {
         const adaptedBookings = adaptBookings(recentBookingsRes.data);
-        console.log(recentBookingsRes.data);
-        console.log(adaptedBookings);
         setRecentBookings(adaptedBookings);
         setStats((prev) => ({
           ...prev,

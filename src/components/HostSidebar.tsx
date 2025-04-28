@@ -1,13 +1,52 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FootballIcon } from "@/utils/sportIcons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const HostSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
+
+  // Auto-collapse on mobile and handle location changes
+  useEffect(() => {
+    if (isMobile) {
+      setCollapsed(true);
+      setIsOpen(false);
+    }
+  }, [isMobile, location]);
+
+  // Handle click outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const sidebar = document.getElementById('host-sidebar');
+      const isClickOutside = sidebar && !sidebar.contains(event.target as Node);
+      
+      if (isMobile && isOpen && isClickOutside) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobile, isOpen]);
+
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setIsOpen(!isOpen);
+    } else {
+      setCollapsed(!collapsed);
+    }
+  };
 
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
@@ -84,140 +123,181 @@ const HostSidebar = () => {
   );
 
   return (
-    <div
-      className={cn(
-        "flex flex-col bg-white border-r border-gray-200 transition-all duration-300 h-screen sticky top-0",
-        collapsed ? "w-20" : "w-64"
+    <>
+      {/* Mobile overlay */}
+      {isMobile && isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" />
       )}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        {!collapsed && (
-          <div className="flex items-center space-x-2">
-            <FootballIcon className="h-6 w-6 text-sporty-600" />
-            <span className="font-bold text-lg text-gray-900">Host Portal</span>
-          </div>
-        )}
-        {collapsed && <FootballIcon className="h-6 w-6 text-sporty-600 mx-auto" />}
+
+      {/* Mobile toggle button when sidebar is closed */}
+      {isMobile && !isOpen && (
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-500 hover:text-sporty-600"
+          onClick={toggleSidebar}
+          className="fixed top-4 left-4 z-50 bg-white rounded-full shadow-lg"
         >
-          {collapsed ? <MenuIcon size={20} /> : <XIcon size={20} />}
+          <MenuIcon className="h-5 w-5" />
         </Button>
-      </div>
+      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1">
-        <Link to="/host/dashboard">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start py-3 px-4",
-              isActive("/host/dashboard")
-                ? "bg-sporty-50 text-sporty-700"
-                : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-            )}
-          >
-            <DashboardIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Dashboard</span>}
-          </Button>
-        </Link>
-
-        <Link to="/host/create-venue">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start py-3 px-4",
-              isActive("/host/create-venue")
-                ? "bg-sporty-50 text-sporty-700"
-                : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-            )}
-          >
-            <PlusIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Create Venue</span>}
-          </Button>
-        </Link>
-
-        {!collapsed && (
-          <div className="pt-4 pb-2">
-            <div className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Management
-            </div>
-          </div>
+      <div
+        id="host-sidebar"
+        className={cn(
+          "flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
+          isMobile ? [
+            "fixed inset-y-0 left-0 z-50 w-64", // Always full width on mobile when open
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          ] : [
+            "h-screen sticky top-0",
+            collapsed ? "w-20" : "w-64"
+          ]
         )}
-        {collapsed && <div className="border-t my-4 border-gray-200"></div>}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          {(!collapsed || isMobile) && (
+            <div className="flex items-center space-x-2">
+              <FootballIcon className="h-6 w-6 text-sporty-600" />
+              <span className="font-bold text-lg text-gray-900">Host Portal</span>
+            </div>
+          )}
+          {(collapsed && !isMobile) && <FootballIcon className="h-6 w-6 text-sporty-600 mx-auto" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="text-gray-500 hover:text-sporty-600"
+          >
+            {(!collapsed && !isMobile) || (isMobile && isOpen) ? 
+              <XIcon className="h-5 w-5" /> : 
+              <MenuIcon className="h-5 w-5" />
+            }
+          </Button>
+        </div>
 
-        <Link to="/host/bookings">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start py-3 px-4",
-              isActive("/host/bookings")
-                ? "bg-sporty-50 text-sporty-700"
-                : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-            )}
-          >
-            <CalendarIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Bookings</span>}
-          </Button>
-        </Link>
+        {/* Navigation */}
+        <nav className="flex-1 py-4 px-3 space-y-1">
+          <Link to="/host/dashboard">
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start py-3 px-4",
+                isActive("/host/dashboard")
+                  ? "bg-sporty-50 text-sporty-700"
+                  : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
+              )}
+            >
+              <DashboardIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+              {(!collapsed || isMobile) && <span>Dashboard</span>}
+            </Button>
+          </Link>
 
-        <Link to="/host/earnings">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start py-3 px-4",
-              isActive("/host/earnings")
-                ? "bg-sporty-50 text-sporty-700"
-                : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-            )}
-          >
-            <DollarSignIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Earnings</span>}
-          </Button>
-        </Link>
+          <Link to="/host/create-venue">
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start py-3 px-4",
+                isActive("/host/create-venue")
+                  ? "bg-sporty-50 text-sporty-700"
+                  : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
+              )}
+            >
+              <PlusIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+              {(!collapsed || isMobile) && <span>Create Venue</span>}
+            </Button>
+          </Link>
 
-        <Link to="/host/settings">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start py-3 px-4",
-              isActive("/host/settings")
-                ? "bg-sporty-50 text-sporty-700"
-                : "text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-            )}
-          >
-            <SettingsIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Settings</span>}
-          </Button>
-        </Link>
-      </nav>
+          {(!collapsed || isMobile) && (
+            <div className="pt-4 pb-2">
+              <div className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Management
+              </div>
+            </div>
+          )}
+          {(collapsed && !isMobile) && <div className="border-t my-4 border-gray-200"></div>}
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <Link to="/">
-          <Button
-            variant="ghost"
-            className="w-full justify-start py-3 px-4 text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-          >
-            <HomeIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Back to Main Site</span>}
-          </Button>
-        </Link>
-        <Link to="/logout">
-          <Button
-            variant="ghost"
-            className="w-full justify-start py-3 px-4 text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
-          >
-            <LogOutIcon className={cn(collapsed ? "mx-auto" : "mr-3")} size={20} />
-            {!collapsed && <span>Logout</span>}
-          </Button>
-        </Link>
+          {/* Management section buttons */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="#" onClick={(e) => e.preventDefault()}>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start py-3 px-4 opacity-50 cursor-not-allowed",
+                      "text-gray-400"
+                    )}
+                  >
+                    <CalendarIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+                    {(!collapsed || isMobile) && <span>Bookings</span>}
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>Coming soon</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="#" onClick={(e) => e.preventDefault()}>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start py-3 px-4 opacity-50 cursor-not-allowed",
+                      "text-gray-400"
+                    )}
+                  >
+                    <DollarSignIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+                    {(!collapsed || isMobile) && <span>Earnings</span>}
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>Coming soon</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="#" onClick={(e) => e.preventDefault()}>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start py-3 px-4 opacity-50 cursor-not-allowed",
+                      "text-gray-400"
+                    )}
+                  >
+                    <SettingsIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+                    {(!collapsed || isMobile) && <span>Settings</span>}
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>Coming soon</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-200">
+          <Link to="/">
+            <Button
+              variant="ghost"
+              className="w-full justify-start py-3 px-4 text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
+            >
+              <HomeIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+              {(!collapsed || isMobile) && <span>Back to Main Site</span>}
+            </Button>
+          </Link>
+          <Link to="/logout">
+            <Button
+              variant="ghost"
+              className="w-full justify-start py-3 px-4 text-gray-600 hover:bg-sporty-50 hover:text-sporty-600"
+            >
+              <LogOutIcon className={cn("h-5 w-5", (!isMobile && collapsed) ? "mx-auto" : "mr-3")} />
+              {(!collapsed || isMobile) && <span>Logout</span>}
+            </Button>
+          </Link>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

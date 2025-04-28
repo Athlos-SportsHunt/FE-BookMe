@@ -70,8 +70,6 @@ const VenueManagement = () => {
         const bookingsResponse = await handle_apicall(getApiUrl(API_ROUTES.HOST.VENUE_BOOKINGS.replace("{id}", venueId)));
         
         if (bookingsResponse.success) {
-          console.log(bookingsResponse.data);
-          console.log(adaptBookings(bookingsResponse.data));
           setVenueBookings(adaptBookings(bookingsResponse.data));
         } else {
           toast({
@@ -154,7 +152,8 @@ const VenueManagement = () => {
           </div>
         </div>
         
-        <div className="flex space-x-3 mt-4 md:mt-0">
+        {/* DONT REMOVE THIS */}
+        {/* <div className="flex space-x-3 mt-4 md:mt-0">
           <Button variant="outline" className="flex items-center">
             <Edit className="mr-2 h-4 w-4" /> Edit Venue
           </Button>
@@ -183,7 +182,7 @@ const VenueManagement = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -252,12 +251,13 @@ const VenueManagement = () => {
                                 <Settings className="mr-2 h-4 w-4" /> Manage
                               </Button>
                             </Link>
-                            <Button variant="outline" className="flex items-center">
+                            {/* add these later */}
+                            {/* <Button variant="outline" className="flex items-center">
                               <Pencil className="mr-2 h-4 w-4" /> Edit
                             </Button>
                             <Button variant="outline" className="flex items-center text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
                               <Trash className="mr-2 h-4 w-4" /> Delete
-                            </Button>
+                            </Button> */}
                           </div>
                         </CardContent>
                       </div>
@@ -436,12 +436,12 @@ const VenueManagement = () => {
                     ₹{venueBookings.reduce((sum, booking) => sum + booking.totalPrice, 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                {/* <div className="flex justify-between items-center">
                   <span className="text-gray-600">Created On</span>
                   <span className="font-medium">
                     {format(parseISO(venue.createdAt), "MMMM d, yyyy")}
                   </span>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>
@@ -459,9 +459,9 @@ const VenueManagement = () => {
               <Button variant="outline" className="w-full justify-start">
                 <Pencil className="mr-2 h-4 w-4" /> Edit Venue Details
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              {/* <Button variant="outline" className="w-full justify-start">
                 <Image className="mr-2 h-4 w-4" /> Manage Photos
-              </Button>
+              </Button> */}
             </CardContent>
           </Card>
           

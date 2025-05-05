@@ -60,5 +60,5 @@ jobs:
         with:
           app-name: 'bookmefrontend'
           slot-name: 'Production'
-          package: .
+          package: ./dist
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DE5F13587B454570AA3993871AFF0306 }}

@@ -52,7 +52,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: zip -r app.zip . -x "*.git*"
       
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -60,5 +60,5 @@ jobs:
         with:
           app-name: 'bookmefrontend'
           slot-name: 'Production'
-          package: .
+          package: app.zip
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_17123087BE144F30A8E5BFD4FF6702CD }}

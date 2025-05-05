@@ -12,12 +12,18 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: false, // Set to true if needed in production
+  },
+  // Base path should be '/' for Azure Web App
+  base: '/'
 }));

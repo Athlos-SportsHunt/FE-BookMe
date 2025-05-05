@@ -51,8 +51,13 @@ jobs:
         with:
           name: node-app
 
-      - name: Unzip artifact for deployment
-        run: zip -r app.zip . -x "*.git*"
+      - name: Unzip build artifact
+        run: unzip release.zip
+
+      - name: Zip only dist folder
+        run: |
+          cd dist
+          zip -r ../app.zip ./*
       
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp

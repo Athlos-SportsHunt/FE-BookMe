@@ -9,8 +9,7 @@
     "build:dev": "vite build --mode development",
     "start": "cross-env PORT=8080 serve -s dist -l 8080",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "vite preview --port=8080"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

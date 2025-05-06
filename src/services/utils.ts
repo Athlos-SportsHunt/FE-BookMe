@@ -1,5 +1,5 @@
 const DEV_API_BASE_URL = "http://127.0.0.1:8000";
-const PROD_API_BASE_URL = "bookme.azurewebsites.net";
+const PROD_API_BASE_URL = "https://bookme.azurewebsites.net";
  
 export const API_BASE_URL = true ? PROD_API_BASE_URL : DEV_API_BASE_URL;
 

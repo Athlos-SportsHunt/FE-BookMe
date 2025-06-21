@@ -1,4 +1,3 @@
-
 import { Venue, Turf, User, Booking, Amenity, SportType } from "@/types";
 
 // Mock Amenities
@@ -62,7 +61,9 @@ export const sportAmenities: Record<SportType, string[]> = {
 
 // Helper to get amenities for a sport
 const getAmenitiesForSport = (sport: SportType): Amenity[] => {
-  return amenities.filter((amenity) => sportAmenities[sport].includes(amenity.id));
+  return amenities.filter((amenity) =>
+    sportAmenities[sport].includes(amenity.id)
+  );
 };
 
 // Mock Turfs
@@ -119,7 +120,8 @@ export const turfs: Turf[] = [
     venueId: "3",
     sportType: "basketball",
     pricePerHour: 600,
-    description: "Regulation-sized basketball court with high-quality flooring.",
+    description:
+      "Regulation-sized basketball court with high-quality flooring.",
     images: [
       "https://images.unsplash.com/photo-1574988539158-485480129462?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1223&q=80",
     ],
@@ -170,7 +172,7 @@ export const venues: Venue[] = [
     images: [
       "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1293&q=80",
     ],
-    googleMapsLink: "https://maps.google.com/?q=123+Main+Street+Cityville",
+    gmapsLink: "https://maps.google.com/?q=123+Main+Street+Cityville",
     host: users[0],
     turfs: [turfs[0], turfs[1]],
     createdAt: "2023-01-05T00:00:00Z",
@@ -184,6 +186,7 @@ export const venues: Venue[] = [
     images: [
       "https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1167&q=80",
     ],
+    gmapsLink: "https://maps.google.com/?q=456+Park+Avenue+Sportstown",
     host: users[2],
     turfs: [turfs[2]],
     createdAt: "2023-01-06T00:00:00Z",
@@ -193,11 +196,12 @@ export const venues: Venue[] = [
     id: "3",
     name: "Urban Sports Center",
     address: "789 Downtown Road, Metropolis",
-    description: "Modern sports facility in the heart of the city with multiple courts.",
+    description:
+      "Modern sports facility in the heart of the city with multiple courts.",
     images: [
       "https://images.unsplash.com/photo-1504450758481-7338eba7524a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80",
     ],
-    googleMapsLink: "https://maps.google.com/?q=789+Downtown+Road+Metropolis",
+    gmapsLink: "https://maps.google.com/?q=789+Downtown+Road+Metropolis",
     host: users[0],
     turfs: [turfs[3], turfs[4]],
     createdAt: "2023-01-07T00:00:00Z",
@@ -211,8 +215,9 @@ export const venues: Venue[] = [
     images: [
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     ],
-    host: users[2],
-    turfs: [turfs[5]],
+    gmapsLink: "https://maps.google.com/?q=101+Weather-proof+Lane+Sheltertown",
+    host: users[1],
+    turfs: [turfs[5], turfs[6]],
     createdAt: "2023-01-08T00:00:00Z",
     updatedAt: "2023-01-08T00:00:00Z",
   },
@@ -262,6 +267,6 @@ export const bookings: Booking[] = [
 ];
 
 // Add bookings to respective turfs
-turfs.forEach(turf => {
-  turf.bookings = bookings.filter(booking => booking.turfId === turf.id);
+turfs.forEach((turf) => {
+  turf.bookings = bookings.filter((booking) => booking.turfId === turf.id);
 });

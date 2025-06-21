@@ -1,32 +1,32 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { 
-  Building, 
-  MapPin, 
-  Edit, 
-  Trash, 
-  Plus, 
-  ChevronLeft, 
+import {
+  Building,
+  MapPin,
+  Edit,
+  Trash,
+  Plus,
+  ChevronLeft,
   ExternalLink,
   Calendar,
   Pencil,
   Image,
-  Settings
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { bookings } from "@/data/mockData";
 import { Venue, Turf } from "@/types";
 import { adaptVenue, adaptBookings } from "@/types/adapter";
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -46,7 +46,7 @@ const VenueManagement = () => {
   const { venueId } = useParams<{ venueId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [venue, setVenue] = useState<Venue | null>(null);
   const [venueTurfs, setVenueTurfs] = useState<Turf[]>([]);
   const [venueBookings, setVenueBookings] = useState([]);
@@ -61,14 +61,18 @@ const VenueManagement = () => {
         return;
       }
       setLoading(true);
-      const response = await handle_apicall(getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId)));
+      const response = await handle_apicall(
+        getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId))
+      );
       if (response.success) {
         const adaptedVenue = adaptVenue(response.data);
         setVenue(adaptedVenue);
         setVenueTurfs(adaptedVenue.turfs);
         // make and API call to get bookings for the venue
-        const bookingsResponse = await handle_apicall(getApiUrl(API_ROUTES.HOST.VENUE_BOOKINGS.replace("{id}", venueId)));
-        
+        const bookingsResponse = await handle_apicall(
+          getApiUrl(API_ROUTES.HOST.VENUE_BOOKINGS.replace("{id}", venueId))
+        );
+
         if (bookingsResponse.success) {
           setVenueBookings(adaptBookings(bookingsResponse.data));
         } else {
@@ -113,7 +117,10 @@ const VenueManagement = () => {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold mb-4">Venue Not Found</h2>
-        <p className="text-gray-600 mb-6">The venue you're looking for doesn't exist or you don't have permission to view it.</p>
+        <p className="text-gray-600 mb-6">
+          The venue you're looking for doesn't exist or you don't have
+          permission to view it.
+        </p>
         <Link to="/host/dashboard">
           <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
             Return to Dashboard
@@ -139,9 +146,9 @@ const VenueManagement = () => {
           <div className="flex items-center text-gray-600 mt-1">
             <MapPin className="h-5 w-5 mr-2" />
             <span>{venue.address}</span>
-            {venue.googleMapsLink && (
+            {venue.gmapsLink && (
               <a
-                href={venue.googleMapsLink}
+                href={venue.gmapsLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 text-sporty-600 hover:text-sporty-700 inline-flex items-center"
@@ -151,7 +158,7 @@ const VenueManagement = () => {
             )}
           </div>
         </div>
-        
+
         {/* DONT REMOVE THIS */}
         {/* <div className="flex space-x-3 mt-4 md:mt-0">
           <Button variant="outline" className="flex items-center">
@@ -189,11 +196,17 @@ const VenueManagement = () => {
         <div className="lg:col-span-2">
           <Tabs defaultValue="turfs">
             <TabsList className="w-full mb-6">
-              <TabsTrigger value="turfs" className="flex-1">Turfs</TabsTrigger>
-              <TabsTrigger value="bookings" className="flex-1">Bookings</TabsTrigger>
-              <TabsTrigger value="details" className="flex-1">Venue Details</TabsTrigger>
+              <TabsTrigger value="turfs" className="flex-1">
+                Turfs
+              </TabsTrigger>
+              <TabsTrigger value="bookings" className="flex-1">
+                Bookings
+              </TabsTrigger>
+              <TabsTrigger value="details" className="flex-1">
+                Venue Details
+              </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="turfs">
               <div className="mb-6 flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Turfs</h2>
@@ -203,7 +216,7 @@ const VenueManagement = () => {
                   </Button>
                 </Link>
               </div>
-              
+
               {venueTurfs.length > 0 ? (
                 <div className="space-y-6">
                   {venueTurfs.map((turf) => (
@@ -221,16 +234,20 @@ const VenueManagement = () => {
                             <div>
                               <h3 className="text-xl font-bold">{turf.name}</h3>
                               <div className="flex items-center text-gray-600 mt-1">
-                                <span className="capitalize">{turf.sportType}</span>
+                                <span className="capitalize">
+                                  {turf.sportType}
+                                </span>
                               </div>
                             </div>
-                            <div className="text-lg font-bold text-sporty-600">₹{turf.pricePerHour}/hr</div>
+                            <div className="text-lg font-bold text-sporty-600">
+                              ₹{turf.pricePerHour}/hr
+                            </div>
                           </div>
-                          
+
                           <p className="text-gray-600 mb-4">
                             {turf.description || "No description provided."}
                           </p>
-                          
+
                           <div className="mb-4">
                             <h4 className="font-medium mb-2">Amenities:</h4>
                             <div className="flex flex-wrap gap-2">
@@ -244,10 +261,13 @@ const VenueManagement = () => {
                               ))}
                             </div>
                           </div>
-                          
+
                           <div className="flex flex-wrap gap-2 mt-4">
                             <Link to={`/host/venue/${venueId}/turf/${turf.id}`}>
-                              <Button variant="outline" className="flex items-center text-sporty-600 border-sporty-200 hover:bg-sporty-50">
+                              <Button
+                                variant="outline"
+                                className="flex items-center text-sporty-600 border-sporty-200 hover:bg-sporty-50"
+                              >
                                 <Settings className="mr-2 h-4 w-4" /> Manage
                               </Button>
                             </Link>
@@ -268,9 +288,12 @@ const VenueManagement = () => {
                 <Card>
                   <CardContent className="text-center py-12">
                     <Building className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium mb-2">No Turfs Added Yet</h3>
+                    <h3 className="text-xl font-medium mb-2">
+                      No Turfs Added Yet
+                    </h3>
                     <p className="text-gray-600 mb-6">
-                      Start by adding a turf to your venue to make it available for booking.
+                      Start by adding a turf to your venue to make it available
+                      for booking.
                     </p>
                     <Link to={`/host/venue/${venueId}/create-turf`}>
                       <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
@@ -281,16 +304,18 @@ const VenueManagement = () => {
                 </Card>
               )}
             </TabsContent>
-            
+
             <TabsContent value="bookings">
               <h2 className="text-xl font-semibold mb-6">Bookings</h2>
-              
+
               {venueBookings.length > 0 ? (
                 <div className="space-y-4">
                   {venueBookings.map((booking) => {
-                    const turf = venueTurfs.find(t => t.id === booking.turfId);
+                    const turf = venueTurfs.find(
+                      (t) => t.id === booking.turfId
+                    );
                     if (!turf) return null;
-                    
+
                     return (
                       <Card key={booking.id} className="overflow-hidden">
                         <CardContent className="p-6">
@@ -299,25 +324,40 @@ const VenueManagement = () => {
                               <div className="flex items-center mb-2">
                                 <Calendar className="h-5 w-5 text-gray-500 mr-2" />
                                 <span className="font-medium">
-                                  {format(parseISO(booking.startTime), "MMMM d, yyyy")}
+                                  {format(
+                                    parseISO(booking.startTime),
+                                    "MMMM d, yyyy"
+                                  )}
                                 </span>
                                 <span className="mx-2 text-gray-500">•</span>
                                 <span>
-                                  {format(parseISO(booking.startTime), "h:mm a")} - 
-                                  {format(parseISO(booking.endTime), "h:mm a")}
+                                  {format(
+                                    parseISO(booking.startTime),
+                                    "h:mm a"
+                                  )}{" "}
+                                  -{format(parseISO(booking.endTime), "h:mm a")}
                                 </span>
                               </div>
-                              
+
                               <h3 className="font-bold">{turf.name}</h3>
-                              <p className="text-gray-600 text-sm">Booking ID: {booking.id}</p>
+                              <p className="text-gray-600 text-sm">
+                                Booking ID: {booking.id}
+                              </p>
                             </div>
-                            
+
                             <div className="md:text-right mt-4 md:mt-0">
-                              <div className="text-lg font-bold text-sporty-600">₹{booking.totalPrice}</div>
-                              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize mt-1
-                                ${booking.status === 'online' ? 'bg-green-100 text-green-800' : 
-                                  booking.status === 'offline' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'}`}
+                              <div className="text-lg font-bold text-sporty-600">
+                                ₹{booking.totalPrice}
+                              </div>
+                              <span
+                                className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize mt-1
+                                ${
+                                  booking.status === "online"
+                                    ? "bg-green-100 text-green-800"
+                                    : booking.status === "offline"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
                               >
                                 {booking.status}
                               </span>
@@ -332,18 +372,21 @@ const VenueManagement = () => {
                 <Card>
                   <CardContent className="text-center py-12">
                     <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium mb-2">No Bookings Yet</h3>
+                    <h3 className="text-xl font-medium mb-2">
+                      No Bookings Yet
+                    </h3>
                     <p className="text-gray-600">
-                      Once users start booking your turfs, you'll see their bookings here.
+                      Once users start booking your turfs, you'll see their
+                      bookings here.
                     </p>
                   </CardContent>
                 </Card>
               )}
             </TabsContent>
-            
+
             <TabsContent value="details">
               <h2 className="text-xl font-semibold mb-6">Venue Details</h2>
-              
+
               <Card>
                 <CardContent className="p-6">
                   <div className="space-y-6">
@@ -353,27 +396,28 @@ const VenueManagement = () => {
                         {venue.description || "No description provided."}
                       </p>
                     </div>
-                    
+
                     <div>
                       <h3 className="text-lg font-medium mb-2">Location</h3>
                       <div className="flex items-start">
                         <MapPin className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
                         <div>
                           <p className="text-gray-600">{venue.address}</p>
-                          {venue.googleMapsLink && (
+                          {venue.gmapsLink && (
                             <a
-                              href={venue.googleMapsLink}
+                              href={venue.gmapsLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-sporty-600 hover:text-sporty-700 inline-flex items-center mt-1"
                             >
-                              View on Google Maps <ExternalLink className="h-4 w-4 ml-1" />
+                              View on Google Maps{" "}
+                              <ExternalLink className="h-4 w-4 ml-1" />
                             </a>
                           )}
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h3 className="text-lg font-medium mb-3">Photos</h3>
                       {venue.images.length > 0 ? (
@@ -385,13 +429,15 @@ const VenueManagement = () => {
                               className="w-full h-64 object-cover rounded-lg"
                             />
                           </div>
-                          
+
                           <div className="flex space-x-2 overflow-x-auto pb-2">
                             {venue.images.map((image, index) => (
                               <div
                                 key={index}
                                 className={`h-16 w-24 rounded-md overflow-hidden cursor-pointer ${
-                                  activeImageIndex === index ? "ring-2 ring-sporty-600" : ""
+                                  activeImageIndex === index
+                                    ? "ring-2 ring-sporty-600"
+                                    : ""
                                 }`}
                                 onClick={() => setActiveImageIndex(index)}
                               >
@@ -414,7 +460,7 @@ const VenueManagement = () => {
             </TabsContent>
           </Tabs>
         </div>
-        
+
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -433,7 +479,10 @@ const VenueManagement = () => {
                 <div className="flex justify-between items-center pb-4 border-b">
                   <span className="text-gray-600">Revenue</span>
                   <span className="font-bold text-sporty-600">
-                    ₹{venueBookings.reduce((sum, booking) => sum + booking.totalPrice, 0).toLocaleString()}
+                    ₹
+                    {venueBookings
+                      .reduce((sum, booking) => sum + booking.totalPrice, 0)
+                      .toLocaleString()}
                   </span>
                 </div>
                 {/* <div className="flex justify-between items-center">
@@ -445,7 +494,7 @@ const VenueManagement = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
@@ -464,7 +513,7 @@ const VenueManagement = () => {
               </Button> */}
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>View on Main Site</CardTitle>

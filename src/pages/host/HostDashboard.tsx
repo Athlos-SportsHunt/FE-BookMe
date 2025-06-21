@@ -1,31 +1,43 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { 
-  Plus, 
-  TrendingUp, 
-  Users, 
-  Calendar, 
-  Building, 
+import {
+  Plus,
+  TrendingUp,
+  Users,
+  Calendar,
+  Building,
   ChevronRight,
-  DollarSign
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { format, parseISO } from "date-fns";
 import { API_ROUTES, getApiUrl } from "@/services/utils";
 import { handle_apicall } from "@/services/apis/api_call";
 import { adaptVenues, adaptBookings } from "@/types/adapter";
-
 
 const HostDashboard = () => {
   const [hostVenues, setHostVenues] = useState([]);
@@ -49,7 +61,9 @@ const HostDashboard = () => {
         const Venues = adaptVenues(venuesRes.data);
         setHostVenues(Venues);
         // Calculate stats
-        const hostTurfIds = Venues.flatMap((venue) => venue.turfs).map((turf) => turf.id);
+        const hostTurfIds = Venues.flatMap((venue) => venue.turfs).map(
+          (turf) => turf.id
+        );
         setStats((prev) => ({
           ...prev,
           venuesCount: Venues.length,
@@ -57,19 +71,37 @@ const HostDashboard = () => {
         }));
       }
       // Fetch recent bookings
-      const recentBookingsRes = await handle_apicall(getApiUrl(API_ROUTES.HOST.RECENT_BOOKINGS));
+      const recentBookingsRes = await handle_apicall(
+        getApiUrl(API_ROUTES.HOST.RECENT_BOOKINGS)
+      );
       if (recentBookingsRes.success) {
         const adaptedBookings = adaptBookings(recentBookingsRes.data);
         setRecentBookings(adaptedBookings);
         setStats((prev) => ({
           ...prev,
           bookingsCount: adaptedBookings.length,
-          totalRevenue: adaptedBookings.reduce((total, booking) => total + booking.totalPrice, 0),
+          totalRevenue: adaptedBookings.reduce(
+            (total, booking) => total + booking.totalPrice,
+            0
+          ),
         }));
       }
       // Generate sample revenue data (in a real app, this would come from API)
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const revenueByMonth = months.map(month => ({
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const revenueByMonth = months.map((month) => ({
         name: month,
         revenue: Math.floor(Math.random() * 50000) + 10000,
       }));
@@ -130,7 +162,7 @@ const HostDashboard = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-white">
           <CardContent className="pt-6">
             <div className="flex items-center">
@@ -144,7 +176,7 @@ const HostDashboard = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-white">
           <CardContent className="pt-6">
             <div className="flex items-center">
@@ -158,7 +190,7 @@ const HostDashboard = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-white">
           <CardContent className="pt-6">
             <div className="flex items-center">
@@ -167,7 +199,9 @@ const HostDashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Total Revenue</p>
-                <h3 className="text-2xl font-bold">₹{stats.totalRevenue.toLocaleString()}</h3>
+                <h3 className="text-2xl font-bold">
+                  ₹{stats.totalRevenue.toLocaleString()}
+                </h3>
               </div>
             </div>
           </CardContent>
@@ -178,7 +212,9 @@ const HostDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle>Revenue Overview</CardTitle>
-          <CardDescription>Monthly revenue for the current year</CardDescription>
+          <CardDescription>
+            Monthly revenue for the current year
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-80">
@@ -189,9 +225,15 @@ const HostDashboard = () => {
               >
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
-                  formatter={(value) => [`₹${value.toLocaleString()}`, 'Revenue']}
-                  contentStyle={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
+                <Tooltip
+                  formatter={(value) => [
+                    `₹${value.toLocaleString()}`,
+                    "Revenue",
+                  ]}
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    borderRadius: "8px",
+                  }}
                 />
                 <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -203,10 +245,14 @@ const HostDashboard = () => {
       {/* Tabs for Venues and Bookings */}
       <Tabs defaultValue="venues">
         <TabsList className="w-full mb-6">
-          <TabsTrigger value="venues" className="flex-1">My Venues</TabsTrigger>
-          <TabsTrigger value="bookings" className="flex-1">Recent Bookings</TabsTrigger>
+          <TabsTrigger value="venues" className="flex-1">
+            My Venues
+          </TabsTrigger>
+          <TabsTrigger value="bookings" className="flex-1">
+            Recent Bookings
+          </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="venues">
           <Card>
             <CardHeader>
@@ -217,7 +263,10 @@ const HostDashboard = () => {
               {hostVenues.length > 0 ? (
                 <div className="space-y-6">
                   {hostVenues.map((venue) => (
-                    <Card key={venue.id} className="bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <Card
+                      key={venue.id}
+                      className="bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
                       <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
                           <div className="flex items-start space-x-4">
@@ -229,20 +278,37 @@ const HostDashboard = () => {
                               />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-lg">{venue.name}</h3>
-                              <p className="text-gray-600 text-sm">{venue.address}</p>
+                              <h3 className="font-semibold text-lg">
+                                {venue.name}
+                              </h3>
+                              <p className="text-gray-600 text-sm">
+                                {venue.address}
+                              </p>
                               <div className="flex items-center mt-2 text-sm">
-                                <span className="mr-4 text-gray-500">{venue.turfs.length} Turfs</span>
+                                <span className="mr-4 text-gray-500">
+                                  {venue.turfs.length} Turfs
+                                </span>
                                 <span className="text-gray-500">
-                                  {recentBookings.filter(booking => 
-                                    venue.turfs.map(turf => turf.id).includes(booking.turfId)
-                                  ).length} Bookings
+                                  {
+                                    recentBookings.filter((booking) =>
+                                      venue.turfs
+                                        .map((turf) => turf.id)
+                                        .includes(booking.turfId)
+                                    ).length
+                                  }{" "}
+                                  Bookings
                                 </span>
                               </div>
                             </div>
                           </div>
-                          <Link to={`/host/venue/${venue.id}`} className="mt-4 md:mt-0">
-                            <Button variant="outline" className="flex items-center">
+                          <Link
+                            to={`/host/venue/${venue.id}`}
+                            className="mt-4 md:mt-0"
+                          >
+                            <Button
+                              variant="outline"
+                              className="flex items-center"
+                            >
                               Manage <ChevronRight className="ml-2 h-4 w-4" />
                             </Button>
                           </Link>
@@ -253,7 +319,9 @@ const HostDashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-gray-600 mb-4">You haven't added any venues yet.</p>
+                  <p className="text-gray-600 mb-4">
+                    You haven't added any venues yet.
+                  </p>
                   <Link to="/host/create-venue">
                     <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
                       <Plus className="mr-2 h-4 w-4" /> Add Your First Venue
@@ -264,12 +332,14 @@ const HostDashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="bookings">
           <Card>
             <CardHeader>
               <CardTitle>Recent Bookings</CardTitle>
-              <CardDescription>Latest bookings across all your venues</CardDescription>
+              <CardDescription>
+                Latest bookings across all your venues
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {recentBookings.length > 0 ? (
@@ -288,40 +358,87 @@ const HostDashboard = () => {
                     {recentBookings.slice(0, 5).map((booking) => {
                       const turf = getTurfDetails(booking.turfId);
                       const venue = turf ? getVenueDetails(turf.venueId) : null;
-                      
-                      if (!turf || !venue) return null;
-                      
-                      return (
-                        <TableRow key={booking.id}>
-                          <TableCell className="font-medium">#{booking.id}</TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{venue.name}</div>
-                              <div className="text-sm text-gray-500">{turf.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div>{format(parseISO(booking.startTime), "MMM d, yyyy")}</div>
-                              <div className="text-sm text-gray-500">
-                                {format(parseISO(booking.startTime), "h:mm a")} - 
-                                {format(parseISO(booking.endTime), "h:mm a")}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{booking.userId}</TableCell>
-                          <TableCell>₹{booking.totalPrice}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize
-                              ${booking.status === 'online' ? 'bg-green-100 text-green-800' : 
-                                booking.status === 'offline' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-red-100 text-red-800'}`}
-                            >
-                              {booking.status}
-                            </span>
-                          </TableCell>
-                        </TableRow>
+
+                      // Add this log to inspect booking date/time values
+                      console.log(
+                        "[HostDashboard] Processing booking for formatting:",
+                        JSON.parse(JSON.stringify(booking))
                       );
+
+                      if (!turf || !venue) {
+                        // Add a log for skipped bookings due to missing turf/venue
+                        console.warn(
+                          "[HostDashboard] Skipping booking, missing turf or venue:",
+                          JSON.parse(JSON.stringify(booking))
+                        );
+                        return null;
+                      }
+
+                      try {
+                        // Add try-catch around date formatting
+                        return (
+                          <TableRow key={booking.id}>
+                            <TableCell className="font-medium">
+                              #{booking.id}
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{venue.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {turf.name}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div>
+                                  {format(
+                                    parseISO(booking.startTime),
+                                    "MMM d, yyyy"
+                                  )}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {format(
+                                    parseISO(booking.startTime),
+                                    "h:mm a"
+                                  )}{" "}
+                                  -{format(parseISO(booking.endTime), "h:mm a")}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{booking.userId}</TableCell>
+                            <TableCell>₹{booking.totalPrice}</TableCell>
+                            <TableCell>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium capitalize
+                                ${
+                                  booking.status === "online"
+                                    ? "bg-green-100 text-green-800"
+                                    : booking.status === "offline"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {booking.status}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      } catch (e) {
+                        console.error(
+                          "[HostDashboard] Error formatting date for booking:",
+                          JSON.parse(JSON.stringify(booking)),
+                          e
+                        );
+                        return (
+                          <TableRow key={booking.id}>
+                            <TableCell colSpan={6}>
+                              Error displaying booking {booking.id} due to
+                              invalid date.
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
                     })}
                   </TableBody>
                 </Table>

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { 
-  FootballIcon, 
-  CricketIcon, 
-  BasketballIcon, 
-  TennisIcon 
+import {
+  FootballIcon,
+  CricketIcon,
+  BasketballIcon,
+  TennisIcon,
 } from "@/utils/sportIcons";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,19 +12,37 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Venue, Turf } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { adaptVenue } from "@/types/adapter"; // import your adapter function
-import { handle_apicall} from "@/services/apis/api_call";
+import { handle_apicall } from "@/services/apis/api_call";
 import { API_ROUTES, getApiUrl } from "@/services/utils";
 
 // Custom icon components for VenueDetails
 const MapPinIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
     <circle cx="12" cy="10" r="3" />
   </svg>
 );
 
 const CalendarIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
     <line x1="16" y1="2" x2="16" y2="6" />
     <line x1="8" y1="2" x2="8" y2="6" />
@@ -33,22 +51,53 @@ const CalendarIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
 );
 
 const ClockIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 const InfoIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="12" cy="12" r="10" />
     <line x1="12" y1="16" x2="12" y2="12" />
     <line x1="12" y1="8" x2="12.01" y2="8" />
   </svg>
 );
 
-const ExternalLinkIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+const ExternalLinkIcon = ({
+  className = "h-6 w-6",
+}: {
+  className?: string;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
     <polyline points="15 3 21 3 21 9" />
     <line x1="10" y1="14" x2="21" y2="3" />
@@ -56,7 +105,16 @@ const ExternalLinkIcon = ({ className = "h-6 w-6" }: { className?: string }) => 
 );
 
 const ChevronLeftIcon = ({ className = "h-6 w-6" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <polyline points="15 18 9 12 15 6" />
   </svg>
 );
@@ -91,12 +149,18 @@ const VenueDetails = () => {
         return;
       }
 
-      const response = await handle_apicall(getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId)));
+      const response = await handle_apicall(
+        getApiUrl(API_ROUTES.VENUE.VENUE.replace("{id}", venueId))
+      );
 
-      if (response.success){
+      if (response.success) {
         setVenue(adaptVenue(response.data));
-      }else {
-        setError(response.error instanceof Error ? response.error.message : "An unknown error occurred");
+      } else {
+        setError(
+          response.error instanceof Error
+            ? response.error.message
+            : "An unknown error occurred"
+        );
       }
       setLoading(false);
     };
@@ -120,8 +184,12 @@ const VenueDetails = () => {
       <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[60vh]">
         <div className="text-center bg-red-50 p-8 rounded-lg max-w-md">
           <div className="text-red-500 text-4xl mb-4">❌</div>
-          <h2 className="text-xl font-bold text-red-700 mb-2">Error Loading Venue</h2>
-          <p className="text-gray-700 mb-6">{error || "Unable to load venue details"}</p>
+          <h2 className="text-xl font-bold text-red-700 mb-2">
+            Error Loading Venue
+          </h2>
+          <p className="text-gray-700 mb-6">
+            {error || "Unable to load venue details"}
+          </p>
           <Link to="/">
             <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
               Return to Home
@@ -135,7 +203,10 @@ const VenueDetails = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Back button */}
-      <Link to="/" className="inline-flex items-center text-gray-600 hover:text-sporty-600 mb-6">
+      <Link
+        to="/"
+        className="inline-flex items-center text-gray-600 hover:text-sporty-600 mb-6"
+      >
         <ChevronLeftIcon className="h-5 w-5 mr-1" /> Back to venues
       </Link>
 
@@ -145,9 +216,9 @@ const VenueDetails = () => {
         <div className="flex items-center text-gray-600 mb-4">
           <MapPinIcon className="h-5 w-5 mr-2" />
           <span>{venue.address}</span>
-          {venue.googleMapsLink && (
+          {venue.gmapsLink && (
             <a
-              href={venue.googleMapsLink}
+              href={venue.gmapsLink}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-sporty-600 hover:text-sporty-700 inline-flex items-center"
@@ -171,7 +242,9 @@ const VenueDetails = () => {
           {venue.images.map((image, index) => (
             <div
               key={index}
-              className={`h-20 w-32 cursor-pointer rounded-md overflow-hidden ${activeImageIndex === index ? "ring-2 ring-sporty-600" : ""}`}
+              className={`h-20 w-32 cursor-pointer rounded-md overflow-hidden ${
+                activeImageIndex === index ? "ring-2 ring-sporty-600" : ""
+              }`}
               onClick={() => setActiveImageIndex(index)}
             >
               <img
@@ -189,13 +262,18 @@ const VenueDetails = () => {
         <div className="lg:col-span-2">
           <Tabs defaultValue="about">
             <TabsList className="w-full mb-6">
-              <TabsTrigger value="about" className="flex-1">About</TabsTrigger>
-              <TabsTrigger value="turfs" className="flex-1">Available Turfs</TabsTrigger>
+              <TabsTrigger value="about" className="flex-1">
+                About
+              </TabsTrigger>
+              <TabsTrigger value="turfs" className="flex-1">
+                Available Turfs
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="about">
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h2 className="text-xl font-bold mb-4 flex items-center">
-                  <InfoIcon className="h-5 w-5 mr-2 text-sporty-600" /> About this venue
+                  <InfoIcon className="h-5 w-5 mr-2 text-sporty-600" /> About
+                  this venue
                 </h2>
                 <p className="text-gray-700 mb-6 leading-relaxed">
                   {venue.description ||
@@ -210,7 +288,9 @@ const VenueDetails = () => {
                   </Avatar>
                   <div>
                     <div className="font-medium">{venue.host.name}</div>
-                    <div className="text-gray-500 text-sm">Host since {new Date(venue.host.createdAt).getFullYear()}</div>
+                    <div className="text-gray-500 text-sm">
+                      Host since {new Date(venue.host.createdAt).getFullYear()}
+                    </div>
                   </div>
                 </div>
 
@@ -247,15 +327,21 @@ const VenueDetails = () => {
                               <div className="flex items-center text-gray-500 mt-1">
                                 <span className="flex items-center">
                                   {getSportIcon(turf.sportType)}
-                                  <span className="ml-1 capitalize">{turf.sportType}</span>
+                                  <span className="ml-1 capitalize">
+                                    {turf.sportType}
+                                  </span>
                                 </span>
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-lg font-bold text-sporty-600">₹{turf.pricePerHour}/hour</div>
+                              <div className="text-lg font-bold text-sporty-600">
+                                ₹{turf.pricePerHour}/hour
+                              </div>
                             </div>
                           </div>
-                          <p className="text-gray-600 line-clamp-2 mb-4">{turf.description}</p>
+                          <p className="text-gray-600 line-clamp-2 mb-4">
+                            {turf.description}
+                          </p>
                           <div>
                             <h4 className="font-medium mb-2">Amenities:</h4>
                             <div className="flex flex-wrap gap-2">
@@ -277,7 +363,8 @@ const VenueDetails = () => {
                           <div className="mt-4 flex justify-end">
                             <Link to={`/venue/${venue.id}/turf/${turf.id}`}>
                               <Button className="bg-sporty-600 hover:bg-sporty-700 text-white">
-                                <CalendarIcon className="mr-2 h-4 w-4" /> Book Now
+                                <CalendarIcon className="mr-2 h-4 w-4" /> Book
+                                Now
                               </Button>
                             </Link>
                           </div>
@@ -287,7 +374,9 @@ const VenueDetails = () => {
                   ))
                 ) : (
                   <div className="bg-gray-50 p-8 rounded-lg text-center">
-                    <p className="text-gray-600">No turfs available at this venue currently.</p>
+                    <p className="text-gray-600">
+                      No turfs available at this venue currently.
+                    </p>
                   </div>
                 )}
               </div>
@@ -300,7 +389,8 @@ const VenueDetails = () => {
           <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24">
             <h2 className="text-xl font-bold mb-4">Book Your Slot</h2>
             <p className="text-gray-600 mb-4">
-              Select a turf to book your slot. Each turf has different pricing and availability.
+              Select a turf to book your slot. Each turf has different pricing
+              and availability.
             </p>
             <div className="space-y-4">
               {venue.turfs.map((turf) => (
@@ -311,10 +401,14 @@ const VenueDetails = () => {
                         <h3 className="font-medium">{turf.name}</h3>
                         <div className="flex items-center text-sm text-gray-500 mt-1">
                           {getSportIcon(turf.sportType)}
-                          <span className="ml-1 capitalize">{turf.sportType}</span>
+                          <span className="ml-1 capitalize">
+                            {turf.sportType}
+                          </span>
                         </div>
                       </div>
-                      <div className="text-sporty-600 font-bold">₹{turf.pricePerHour}/hr</div>
+                      <div className="text-sporty-600 font-bold">
+                        ₹{turf.pricePerHour}/hr
+                      </div>
                     </div>
                   </div>
                 </Link>

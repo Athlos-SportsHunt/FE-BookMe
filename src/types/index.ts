@@ -1,12 +1,11 @@
-
-export type SportType = 
-  | "football" 
-  | "cricket" 
-  | "basketball" 
-  | "tennis" 
-  | "badminton" 
-  | "volleyball" 
-  | "rugby" 
+export type SportType =
+  | "football"
+  | "cricket"
+  | "basketball"
+  | "tennis"
+  | "badminton"
+  | "volleyball"
+  | "rugby"
   | "hockey";
 
 export interface Amenity {
@@ -21,7 +20,7 @@ export interface Venue {
   address: string;
   description?: string;
   images: string[];
-  googleMapsLink?: string;
+  gmapsLink?: string; // Renamed from googleMapsLink
   host: User;
   turfs: Turf[];
   createdAt: string;
@@ -49,11 +48,11 @@ export interface Booking {
   startTime: string;
   endTime: string;
   totalPrice: number;
-  status: "offline" | "online";
+  status: "offline" | "online" | "confirmed" | "pending"; // Added "confirmed" and "pending"
   paymentId?: string;
   createdAt: string;
   updatedAt: string;
-  turf?: any;
+  turf?: Turf; // Changed from any to Turf
   venue_name?: string;
 }
 
